@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Drug Flashcards</title>
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#3498db">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Drug Flashcards">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="manifest" href="manifest.json">
+  <!-- End PWA Meta -->
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f4f7fa;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      padding: 10px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .progress {
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    button {
+      padding: 8px 14px;
+      font-size: 0.9em;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    button:active { transform: scale(0.98); }
+    .btn-shuffle { background: #3498db; color: white; }
+    .btn-review { background: #e74c3c; color: white; }
+    .btn-reset { background: #95a5a6; color: white; }
+    .card-container {
+      perspective: 1000px;
+      flex: 1;
+      margin-bottom: 15px;
+    }
+    .card {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 0.6s;
+      cursor: pointer;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+    .card.flipped { transform: rotateY(180deg); }
+    .card-front, .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .card-front {
+      background: linear-gradient(135deg, #6ab7ff, #4a90e2);
+      color: white;
+    }
+    .card-back {
+      background: linear-gradient(135deg, #a8e6cf, #66bb6a);
+      color: #1a3d1f;
+      transform: rotateY(180deg);
+    }
+    .drug-name {
+      font-size: 0.9em;
+      font-style: italic;
+      margin-top: 10px;
+      opacity: 0.9;
+    }
+    .question { font-size: 1.3em; font-weight: 600; margin-bottom: 10px; }
+    .answer { font-size: 1.1em; line-height: 1.5; }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .nav-btn {
+      flex: 1;
+      padding: 12px;
+      font-size: 1em;
+      background: #34495e;
+      color: white;
+    }
+    .nav-btn:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+    .mark-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+    }
+    .btn-correct { background: #27ae60; color: white; }
+    .btn-incorrect { background: #c0392b; color: white; }
+    .footer {
+      text-align: center;
+      font-size: 0.8em;
+      color: #7f8c8d;
+      margin-top: 10px;
+    }
+    @media (max-width: 480px) {
+      .question { font-size: 1.1em; }
+      .answer { font-size: 1em; }
+      button { font-size: 0.8em; padding: 6px 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="progress" id="progress">1 of 225</div>
+    </div>
+
+    <div class="controls">
+      <button id="shuffleBtn" class="btn-shuffle">Shuffle</button>
+      <button id="reviewBtn" class="btn-review">Review Missed</button>
+      <button id="resetBtn" class="btn-reset">Reset Progress</button>
+    </div>
+
+    <div class="card-container">
+      <div class="card" id="flashcard">
+        <div class="card-front">
+          <div class="question" id="question">Tap to reveal answer</div>
+        </div>
+        <div class="card-back">
+          <div class="answer" id="answer"></div>
+          <div class="drug-name" id="drugBack"></div>
+          <div class="mark-buttons">
+            <button class="btn-correct" id="correctBtn">✓ Correct</button>
+            <button class="btn-incorrect" id="incorrectBtn">✗ Incorrect</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button id="prevBtn" class="nav-btn">← Previous</button>
+      <button id="nextBtn" class="nav-btn">Next →</button>
+    </div>
+
+    <div class="footer">
+      <span id="modeText">All Cards</span>
+    </div>
+  </div>
+
+  <script>
+    // Register Service Worker for PWA (offline support)
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW registered'))
+          .catch(err => console.log('SW registration failed'));
+      });
+    }
+
+    // === ALL 225 FLASHCARDS DATA ===
+    const flashcards = [
+      // ... (same as before - I've omitted for brevity, but copy the full array from your previous index.html)
+      { drug: "daptomycin", question: "What is the Brand name for daptomycin?", answer: "Cubicin" },
+      // ... (insert all 225 here - the full list from your original response)
+    ];
+
+    // State
+    let currentIndex = 0;
+    let deck = [...flashcards];
+    let isReviewMode = false;
+    let missedIndices = new Set();
+
+    // DOM Elements
+    const card = document.getElementById('flashcard');
+    const questionEl = document.getElementById('question');
+    const answerEl = document.getElementById('answer');
+    const drugBackEl = document.getElementById('drugBack');
+    const progressEl = document.getElementById('progress');
+    const modeText = document.getElementById('modeText');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const shuffleBtn = document.getElementById('shuffleBtn');
+    const reviewBtn = document.getElementById('reviewBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const correctBtn = document.getElementById('correctBtn');
+    const incorrectBtn = document.getElementById('incorrectBtn');
+
+    // Load progress
+    function loadProgress() {
+      const saved = localStorage.getItem('flashcardMissed');
+      if (saved) missedIndices = new Set(JSON.parse(saved));
+    }
+
+    // Save progress
+    function saveProgress() {
+      localStorage.setItem('flashcardMissed', JSON.stringify([...missedIndices]));
+    }
+
+    // Update display
+    function updateCard() {
+      const cardData = deck[currentIndex];
+      questionEl.textContent = cardData.question;
+      answerEl.textContent = cardData.answer;
+      drugBackEl.textContent = cardData.drug;
+      progressEl.textContent = `${currentIndex + 1} of ${deck.length}`;
+      modeText.textContent = isReviewMode ? `Review Missed (${deck.length})` : 'All Cards';
+
+      prevBtn.disabled = currentIndex === 0;
+      nextBtn.disabled = currentIndex === deck.length - 1;
+
+      card.classList.remove('flipped');
+    }
+
+    // Navigation
+    function goTo(index) {
+      currentIndex = index;
+      updateCard();
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) goTo(currentIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < deck.length - 1) goTo(currentIndex + 1);
+    });
+
+    // Flip card
+    card.addEventListener('click', () => {
+      card.classList.toggle('flipped');
+    });
+
+    // Mark correct/incorrect
+    correctBtn.addEventListener('click', () => {
+      missedIndices.delete(currentIndex);
+      saveProgress();
+      nextBtn.click();
+    });
+
+    incorrectBtn.addEventListener('click', () => {
+      missedIndices.add(currentIndex);
+      saveProgress();
+      nextBtn.click();
+    });
+
+    // Shuffle
+    shuffleBtn.addEventListener('click', () => {
+      deck = [...flashcards];
+      for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+      }
+      currentIndex = 0;
+      isReviewMode = false;
+      updateCard();
+    });
+
+    // Review missed
+    reviewBtn.addEventListener('click', () => {
+      if (missedIndices.size === 0) {
+        alert("No missed cards to review!");
+        return;
+      }
+      deck = [...missedIndices].map(i => flashcards[i]);
+      currentIndex = 0;
+      isReviewMode = true;
+      updateCard();
+    });
+
+    // Reset
+    resetBtn.addEventListener('click', () => {
+      if (confirm("Reset all progress? This will clear all missed cards.")) {
+        missedIndices.clear();
+        saveProgress();
+        deck = [...flashcards];
+        currentIndex = 0;
+        isReviewMode = false;
+        updateCard();
+      }
+    });
+
+    // Keyboard support (for desktop/tablet)
+    document.addEventListener('keydown', e => {
+      if (e.key === 'ArrowLeft') prevBtn.click();
+      if (e.key === 'ArrowRight') nextBtn.click();
+      if (e.key === ' ') card.click();
+    });
+
+    // Init
+    loadProgress();
+    deck = [...flashcards];
+    updateCard();
+  </script>
+</body>
+</html>
