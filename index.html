@@ -426,7 +426,8 @@ const flashcards = [
     let deck = [...flashcards];
     let isReviewMode = false;
     let missedIndices = new Set();
-
+    let mainDeckIndex = 0;
+    
     // DOM Elements
     const card = document.getElementById('flashcard');
     const questionEl = document.getElementById('question');
@@ -439,9 +440,10 @@ const flashcards = [
     const shuffleBtn = document.getElementById('shuffleBtn');
     const reviewBtn = document.getElementById('reviewBtn');
     const resetBtn = document.getElementById('resetBtn');
+    const allCardsBtn = document.getElementById('allCardsBtn');
     const correctBtn = document.getElementById('correctBtn');
     const incorrectBtn = document.getElementById('incorrectBtn');
-    const allCardsBtn = document.getElementById('allCardsBtn');
+   
     
     // Load progress
     function loadProgress() {
@@ -565,6 +567,7 @@ incorrectBtn.addEventListener('click', () => {
         alert('No missed cards to review!');
         return;
       }
+      mainDeckIndex = currentIndex;
       deck = [...missedIndices].map(i => flashcards[i]);
       currentIndex = 0;
       isReviewMode = true;
@@ -576,7 +579,7 @@ incorrectBtn.addEventListener('click', () => {
     
     allCardsBtn.addEventListener('click', () => {
       deck = [...flashcards];
-      currentIndex = 0;
+      currentIndex = mainDeckIndex;
       isReviewMode = false;
       updateCard();
       allCardsBtn.style.display = 'none';
@@ -610,6 +613,7 @@ incorrectBtn.addEventListener('click', () => {
 </body>
 
 </html>
+
 
 
 
