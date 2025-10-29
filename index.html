@@ -918,6 +918,7 @@ focusBtn.addEventListener('click', () => {
       if (confirm('Reset all progress?')) {
         missedSet.clear();
         masteredSet.clear();
+        updateStats();
         saveProgress();
         deck = [...flashcards];
         currentIndex = 0;
@@ -946,6 +947,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
