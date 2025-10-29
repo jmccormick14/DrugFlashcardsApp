@@ -26,7 +26,7 @@
     .btn-review { background: #e74c3c; color: white; }
     .btn-reset { background: #95a5a6; color: white; }
     .btn-all { background: #2c3e50; color: white; }
-    .btn-focus { background: #9b59b6; color: white; } /* NEW */
+    .btn-focus { background: #9b59b6; color: white; }
     .btn-refresh { background: #f39c12; color: white; } /* NEW for refresh */
 
     .card-container { perspective: 1000px; flex: 1; margin-bottom: 15px; }
@@ -245,7 +245,8 @@
         const response = await fetch(GOOGLE_SHEET_TSV_URL);
         if (!response.ok) throw new Error('Fetch failed');
         const tsvText = await response.text();
-        return parseTSV(tsvText);
+        const { flashcards, version } = parseTSV(tsvText); // Updated parse to extract version
+        return { flashcards, version };
       } catch (error) {
         console.error('Error fetching Google Sheet:', error);
         showToast('Failed to fetch new data. Using cached version.', '#c0392b');
@@ -255,9 +256,22 @@
 
     function parseTSV(tsvText) {
       const lines = tsvText.split('\n').filter(line => line.trim());
-      const headers = lines[0].split('\t').map(h => h.trim());
+      let version = '1.0'; // Default if not found
+      let headerIndex = 0;
+
+      // Check for metadata rows
+      if (lines[0].startsWith('key\tvalue')) {
+        // Extract version from second row
+        const metadataLine = lines[1].split('\t').map(v => v.trim());
+        if (metadataLine[0] === 'version') {
+          version = metadataLine[1];
+        }
+        headerIndex = 2; // Headers now on line 2 (0-indexed)
+      }
+
+      const headers = lines[headerIndex].split('\t').map(h => h.trim());
       const flashcards = [];
-      for (let i = 1; i < lines.length; i++) {
+      for (let i = headerIndex + 1; i < lines.length; i++) {
         const values = lines[i].split('\t').map(v => v.trim());
         const card = {};
         headers.forEach((header, idx) => {
@@ -266,7 +280,7 @@
         flashcards.push(card);
       }
       flashcards.forEach((card, index) => { card.id = index; });
-      return flashcards;
+      return { flashcards, version };
     }
 
     async function storeFlashcards(flashcards) {
@@ -282,15 +296,24 @@
     // === REFRESH LOGIC ===
     async function loadFlashcards() {
       const lastFetch = await getMetadata('lastFetch');
+      const storedVersion = await getMetadata('version') || '0.0';
       const now = Date.now();
       let flashcards = await getAllFromStore(STORE_FLASHCARDS);
 
       if (!flashcards.length || !lastFetch || (now - lastFetch > REFRESH_INTERVAL_MS)) {
         const freshData = await fetchFromGoogleSheet();
         if (freshData) {
-          flashcards = freshData;
+          const { flashcards: newCards, version: newVersion } = freshData;
+          if (newVersion !== storedVersion) {
+            // Force clear and refresh if version changed
+            await clearStore(STORE_FLASHCARDS);
+            showToast('New version detected! Reloading data...', '#f39c12');
+            location.reload(); // Force full app reload to apply changes
+          }
+          flashcards = newCards;
           await storeFlashcards(flashcards);
           await setMetadata('lastFetch', now);
+          await setMetadata('version', newVersion);
           showToast('Data refreshed from Google Sheet!', '#27ae60');
         }
       }
@@ -301,9 +324,16 @@
     async function forceRefreshData() {
       const freshData = await fetchFromGoogleSheet();
       if (freshData) {
-        await storeFlashcards(freshData);
+        const { flashcards: newCards, version: newVersion } = freshData;
+        const storedVersion = await getMetadata('version') || '0.0';
+        if (newVersion !== storedVersion) {
+          showToast('New version detected! Reloading...', '#f39c12');
+          location.reload();
+        }
+        await storeFlashcards(newCards);
         await setMetadata('lastFetch', Date.now());
-        flashcards = freshData;
+        await setMetadata('version', newVersion);
+        flashcards = newCards;
         deck = [...flashcards];
         currentIndex = 0;
         updateCard();
