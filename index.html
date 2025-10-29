@@ -10,7 +10,7 @@
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="icon" href="favicon.png">
+  <link rel="icon" href="favicon.ico">
 
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -143,7 +143,18 @@ const flashcards = [
       { drug: "daptomycin", question: "What is the route/admin for daptomycin Cubicin?", answer: "IV push over 2 minutes (can be infused over 30 minutes)" },
       { drug: "daptomycin", question: "What observation is required for daptomycin Cubicin?", answer: "NONE" },
       { drug: "daptomycin", question: "What are the side effects of daptomycin Cubicin?", answer: "Swelling in face, arms, hands, legs, feet; Fever, chills, weakness; Tingling in hands or feet, sweating; Cough, SOB, dizziness, fainting, lightheadedness; Increased HR, BP, headache; Rash, itching, pale skin" },
-      {drug:  "daptomycin", question: "Daptomycin (Cubicin)", answer: "Indications: Bacteremia, skin infections Pre Meds: NONE  Assessment: VS upon arrival Route/Admin: IV push over 2 minutes (can be infused over 30 minutes)Observation: NONE   Side Effects: Swelling in face, arms, hands, legs, feet; Fever, chills, weakness; Tingling in hands or feet, sweating; Cough, SOB, dizziness, fainting, lightheadedness; Increased HR, BP, headache; Rash, itching, pale skin?"},
+      {
+        drug: "daptomycin",
+        question: "Daptomycin (Cubicin)",
+        answer: `
+          <strong>Indications:</strong> Bacteremia, skin infections<br>
+          <strong>Pre Meds:</strong> NONE<br>
+          <strong>Assessment:</strong> VS upon arrival<br>
+          <strong>Route/Admin:</strong> IV push over 2 minutes (can be infused over 30 minutes)<br>
+          <strong>Observation:</strong> NONE<br>
+          <strong>Side Effects:</strong> Swelling in face, arms, hands, legs, feet; Fever, chills, weakness; Tingling in hands or feet, sweating; Cough, SOB, dizziness, fainting, lightheadedness; Increased HR, BP, headache; Rash, itching, pale skin
+        `.trim()
+      }
       { drug: "vedolizumab", question: "What is the Brand name for vedolizumab?", answer: "Entyvio" },
       { drug: "vedolizumab", question: "What are the indications for vedolizumab Entyvio?", answer: "Crohn’s Disease, ulcerative colitis" },
       { drug: "vedolizumab", question: "What are the Pre Meds for vedolizumab Entyvio?", answer: "NONE" },
@@ -565,6 +576,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
