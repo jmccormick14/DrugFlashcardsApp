@@ -420,7 +420,7 @@ const flashcards = [
     function updateCard() {
       const c = deck[currentIndex];
       questionEl.textContent = c.question;
-      answerEl.textContent = c.answer;
+      answerEl.innerHTML = c.answer;  
       drugBackEl.textContent = c.drug;
       progressEl.textContent = `${currentIndex + 1} of ${deck.length}`;
       modeText.textContent = isFocusMode ? `Focus: ${focusDrug}` : (isReviewMode ? `Review Missed (${deck.length})` : 'All Cards');
@@ -576,6 +576,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
