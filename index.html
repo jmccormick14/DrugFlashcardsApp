@@ -786,24 +786,18 @@ const flashcards = [
       showToast("Marked Correct", "#27ae60");
       updateStats();  // Refresh stats immediately
       
-         // Trigger next button if not last card
-      if (currentIndex < deck.length - 1) {
-        nextBtn.click();
-      }
+     
     });
 
     incorrectBtn.addEventListener('click', () => {
       const cardId = deck[currentIndex].id;
       missedSet.add(cardId);    // Mark as missed
       masteredSet.delete(cardId); // Remove from mastered if present
-      nextBtn.click();
+      
       saveProgress();
       showToast("Marked Wrong", "#c0392b");
       updateStats();  // Refresh stats immediately
-        // Trigger next button if not last card
-      if (currentIndex < deck.length - 1) {
-        nextBtn.click();
-      }
+      nextBtn.click();
     });
 
     // SHUFFLE
@@ -942,6 +936,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
