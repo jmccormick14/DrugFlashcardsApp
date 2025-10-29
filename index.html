@@ -27,6 +27,7 @@
     .btn-reset { background: #95a5a6; color: white; }
     .btn-all { background: #2c3e50; color: white; }
     .btn-focus { background: #9b59b6; color: white; } /* NEW */
+    .btn-refresh { background: #f39c12; color: white; } /* NEW for refresh */
 
     .card-container { perspective: 1000px; flex: 1; margin-bottom: 15px; }
     .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s ease-in-out; cursor: pointer; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
@@ -125,576 +126,25 @@
   </div>
 
   <script>
-// Service Worker (PWA offline)
+    // Service Worker (PWA offline)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-       navigator.serviceWorker.register('sw.js')
+        navigator.serviceWorker.register('sw.js')
           .then(() => console.log('SW registered'))
           .catch(() => console.log('SW registration failed'));
       });
     }
-    // === ALL 225 FLASHCARDS DATA ===
-const flashcards = [
-      { drug: "daptomycin", question: "What is the Brand name for daptomycin?", answer: "Cubicin" },
-      { drug: "daptomycin", question: "What are the indications for daptomycin Cubicin?", answer: "Bacteremia, skin infections" },
-      { drug: "daptomycin", question: "What are the Pre Meds for daptomycin Cubicin?", answer: "NONE" },
-      { drug: "daptomycin", question: "What is the filter for daptomycin Cubicin?", answer: "NONE" },
-      { drug: "daptomycin", question: "What should be assessed upon arrival for a patient receiving daptomycin Cubicin?", answer: "VS upon arrival" },
-      { drug: "daptomycin", question: "What is the route/admin for daptomycin Cubicin?", answer: "IV push over 2 minutes (can be infused over 30 minutes)" },
-      { drug: "daptomycin", question: "What observation is required for daptomycin Cubicin?", answer: "NONE" },
-      { drug: "daptomycin", question: "What are the side effects of daptomycin Cubicin?", answer: "Swelling in face, arms, hands, legs, feet; Fever, chills, weakness; Tingling in hands or feet, sweating; Cough, SOB, dizziness, fainting, lightheadedness; Increased HR, BP, headache; Rash, itching, pale skin" },
-      {
-        drug: "daptomycin",
-        question: "Daptomycin (Cubicin)",
-        answer: `
-          <strong>Indications:</strong> Bacteremia, skin infections<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> IV push over 2 minutes (can be infused over 30 minutes)<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Swelling in face, arms, hands, legs, feet; Fever, chills, weakness; Tingling in hands or feet, sweating; Cough, SOB, dizziness, fainting, lightheadedness; Increased HR, BP, headache; Rash, itching, pale skin
-        `.trim()
-      },
-      { drug: "vedolizumab", question: "What is the Brand name for vedolizumab?", answer: "Entyvio" },
-      { drug: "vedolizumab", question: "What are the indications for vedolizumab Entyvio?", answer: "Crohn’s Disease, ulcerative colitis" },
-      { drug: "vedolizumab", question: "What are the Pre Meds for vedolizumab Entyvio?", answer: "NONE" },
-      { drug: "vedolizumab", question: "What is the filter for vedolizumab Entyvio?", answer: "NONE" },
-      { drug: "vedolizumab", question: "What should be assessed upon arrival for a patient receiving vedolizumab Entyvio?", answer: "VS upon arrival" },
-      { drug: "vedolizumab", question: "What is the route/admin for vedolizumab Entyvio?", answer: "IV infusion over 30 minutes. Flush with 30mL NS after. Weeks 0, 2, 6, then every 8 weeks thereafter" },
-      { drug: "vedolizumab", question: "What observation is required for vedolizumab Entyvio?", answer: "NONE" },
-      { drug: "vedolizumab", question: "What are the side effects of vedolizumab Entyvio?", answer: "Cold symptoms, fever, cough, nausea; Joint pain, back pain, extremity pain, headache; Rash, itching, sore throat; Sinus infection; Flu" },
-      {
-          drug: "vedolizumab",
-          question: "Vedolizumab (Entyvio)",
-          answer: `
-            <strong>Indications:</strong> Crohn’s Disease, ulcerative colitis<br>
-            <strong>Pre Meds:</strong> NONE<br>
-            <strong>Assessment:</strong> VS upon arrival<br>
-            <strong>Route/Admin:</strong> IV infusion over 30 minutes. Flush with 30mL NS after. Weeks 0, 2, 6, then every 8 weeks thereafter<br>
-            <strong>Observation:</strong> NONE<br>
-            <strong>Side Effects:</strong> Cold symptoms, fever, cough, nausea; Joint pain, back pain, extremity pain, headache; Rash, itching, sore throat; Sinus infection; Flu
-          `.trim()
-        },
-      { drug: "pegunigalsidase alfa", question: "What is the Brand name for pegunigalsidase alfa?", answer: "Elfabrio" },
-      { drug: "pegunigalsidase alfa", question: "What are the indications for pegunigalsidase alfa Elfabrio?", answer: "Fabry Disease" },
-      { drug: "pegunigalsidase alfa", question: "What are the Pre Meds for pegunigalsidase alfa Elfabrio?", answer: "Tylenol & Benadryl" },
-      { drug: "pegunigalsidase alfa", question: "What is the filter for pegunigalsidase alfa Elfabrio?", answer: "YES" },
-      { drug: "pegunigalsidase alfa", question: "What should be assessed upon arrival for a patient receiving pegunigalsidase alfa Elfabrio?", answer: "VS at beginning, middle, and end of infusion" },
-      { drug: "pegunigalsidase alfa", question: "What is the route/admin for pegunigalsidase alfa Elfabrio?", answer: "IV infusion over 1.5-4 hours-see orders. Flush with 20mL NS after. Usually every 2 weeks" },
-      { drug: "pegunigalsidase alfa", question: "What observation is required for pegunigalsidase alfa Elfabrio?", answer: "30 mins and then reassess VS" },
-      { drug: "pegunigalsidase alfa", question: "What are the side effects of pegunigalsidase alfa Elfabrio?", answer: "Nasopharyngitis, sinusitis; Headache, back pain, extremity pain; Diarrhea, fatigue, nausea" },
-      {
-        drug: "pegunigalsidase alfa",
-        question: "Pegunigalsidase alfa (Elfabrio)",
-        answer: `
-          <strong>Indications:</strong> Fabry Disease<br>
-          <strong>Pre Meds:</strong> Tylenol & Benadryl<br>
-          <strong>Assessment:</strong> VS at beginning, middle, and end of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion over 1.5-4 hours-see orders. Flush with 20mL NS after. Usually every 2 weeks<br>
-          <strong>Observation:</strong> 30 mins and then reassess VS<br>
-          <strong>Side Effects:</strong> Nasopharyngitis, sinusitis; Headache, back pain, extremity pain; Diarrhea, fatigue, nausea
-              `.trim()
-      },
-      { drug: "agalsidase beta", question: "What is the Brand name for agalsidase beta?", answer: "Fabrazyme" },
-      { drug: "agalsidase beta", question: "What are the indications for agalsidase beta Fabrazyme?", answer: "Fabry Disease" },
-      { drug: "agalsidase beta", question: "What are the Pre Meds for agalsidase beta Fabrazyme?", answer: "Tylenol & Benadryl" },
-      { drug: "agalsidase beta", question: "What is the filter for agalsidase beta Fabrazyme?", answer: "0.2 um filter" },
-      { drug: "agalsidase beta", question: "What should be assessed upon arrival for a patient receiving agalsidase beta Fabrazyme?", answer: "VS upon arrival" },
-      { drug: "agalsidase beta", question: "What is the route/admin for agalsidase beta Fabrazyme?", answer: "IV infusion-see orders for rates & ramps (minimum 1.5 hours)" },
-      { drug: "agalsidase beta", question: "What observation is required for agalsidase beta Fabrazyme?", answer: "No recommendations. Watch for temp, chills, flushing, BP changes, SOB, wheezing, cough, congestion" },
-      { drug: "agalsidase beta", question: "What are the side effects of agalsidase beta Fabrazyme?", answer: "Anaphylaxis, dizziness, rash; Respiratory infection; Fever, chills, headache, cough, fatigue; Tingling sensation; Swelling in legs" },
-      {
-        drug: "agalsidase beta",
-        question: "Agalsidase beta (Fabrazyme)",
-        answer: `
-          <strong>Indications:</strong> Fabry Disease<br>
-          <strong>Pre Meds:</strong> Tylenol & Benadryl<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> IV infusion-see orders for rates & ramps (minimum 1.5 hours)<br>
-          <strong>Observation:</strong> No recommendations. Watch for temp, chills, flushing, BP changes, SOB, wheezing, cough, congestion<br>
-          <strong>Side Effects:</strong> Anaphylaxis, dizziness, rash; Respiratory infection; Fever, chills, headache, cough, fatigue; Tingling sensation; Swelling in legs
-              `.trim()
-      }, 
-      { drug: "iron", question: "What is the Brand name for iron?", answer: "Venofer/Feraheme/Injectafer" },
-      { drug: "iron", question: "What are the indications for iron Venofer/Feraheme/Injectafer?", answer: "Anemia (chemo-related, pregnancy-related, iron deficiency)" },
-      { drug: "iron", question: "What are the Pre Meds for iron Venofer/Feraheme/Injectafer?", answer: "NO" },
-      { drug: "iron", question: "What is the filter for iron Venofer/Feraheme/Injectafer?", answer: "NO" },
-      { drug: "iron", question: "What should be assessed upon arrival for a patient receiving iron Venofer/Feraheme/Injectafer?", answer: "VS at beginning and end of infusion" },
-      { drug: "iron", question: "What is the route/admin for iron Venofer/Feraheme/Injectafer?", answer: "IV infusion; Feraheme-15 minutes; Venofer-100/200mg 15 mins, 300mg 90 mins, 400mg 2.5 hours" },
-      { drug: "iron", question: "What observation is required for iron Venofer/Feraheme/Injectafer?", answer: "30 mins then reassess VS" },
-      { drug: "iron", question: "What are the side effects of iron Venofer/Feraheme/Injectafer?", answer: "Flushing; Itching, rash, hives; Joint/muscle pain; Nausea, vomiting, diarrhea; Headache, dizziness" },
-      {
-        drug: "iron",
-        question: "Iron (Venofer/Feraheme/Injectafer)",
-        answer: `
-          <strong>Indications:</strong> Anemia (chemo-related, pregnancy-related, iron deficiency)<br>
-          <strong>Pre Meds:</strong> NO<br>
-          <strong>Assessment:</strong> VS at beginning and end of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion; Feraheme-15 minutes; Venofer-100/200mg 15 mins, 300mg 90 mins, 400mg 2.5 hours<br>
-          <strong>Observation:</strong> 30 mins then reassess VS<br>
-          <strong>Side Effects:</strong> Flushing; Itching, rash, hives; Joint/muscle pain; Nausea, vomiting, diarrhea; Headache, dizziness
-              `.trim()
-      },
-      { drug: "infliximab", question: "What is the Brand name for infliximab?", answer: "Remicade/Renflexis/Inflectra" },
-      { drug: "infliximab", question: "What are the indications for infliximab Remicade/Renflexis/Inflectra?", answer: "Crohn’s, UC, RA, ankylosing spondylitis, psoriatic arthritis, plaque psoriasis" },
-      { drug: "infliximab", question: "What are the Pre Meds for infliximab Remicade/Renflexis/Inflectra?", answer: "Tylenol & Benadryl" },
-      { drug: "infliximab", question: "What is the filter for infliximab Remicade/Renflexis/Inflectra?", answer: "YES-in chamber" },
-      { drug: "infliximab", question: "What should be assessed upon arrival for a patient receiving infliximab Remicade/Renflexis/Inflectra?", answer: "VS at beginning and end of infusion" },
-      { drug: "infliximab", question: "What is the route/admin for infliximab Remicade/Renflexis/Inflectra?", answer: "IV infusion over 2 hours. After 3 successful infusions, may do rapid infusion protocol per IHC (ask lead RN for instructions). 250mL bag: 10mL/hr for 2.5mL, 20mL/hr for 5mL, 40mL/hr for 10mL, 80mL/hr for 20mL, 150mL/hr for 37.5mL, 250mL/hr for remainder (125mL). 500mL bag: 20mL/hr for 5mL, 40mL/hr for 10mL, 80mL/hr for 20mL, 160mL/hr for 40mL, 300mL/hr for 75mL, 500mL/hr for remainder (250mL)" },
-      { drug: "infliximab", question: "What observation is required for infliximab Remicade/Renflexis/Inflectra?", answer: "First dose only; 30 minutes then reassess VS" },
-      { drug: "infliximab", question: "What are the side effects of infliximab Remicade/Renflexis/Inflectra?", answer: "Headache; Rash, itching; Coughing, SOB; Stomach pain; Fever, chills" },
-      {
-        drug: "infliximab",
-        question: "Infliximab (Remicade/Renflexis/Inflectra)",
-        answer: `
-          <strong>Indications:</strong> Crohn’s, UC, RA, ankylosing spondylitis, psoriatic arthritis, plaque psoriasis<br>
-          <strong>Pre Meds:</strong> Tylenol & Benadryl<br>
-          <strong>Assessment:</strong> VS at beginning and end of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion over 2 hours. After 3 successful infusions, may do rapid infusion protocol per IHC (ask lead RN for instructions). 250mL bag: 10mL/hr for 2.5mL, 20mL/hr for 5mL, 40mL/hr for 10mL, 80mL/hr for 20mL, 150mL/hr for 37.5mL, 250mL/hr for remainder (125mL). 500mL bag: 20mL/hr for 5mL, 40mL/hr for 10mL, 80mL/hr for 20mL, 160mL/hr for 40mL, 300mL/hr for 75mL, 500mL/hr for remainder (250mL)<br>
-          <strong>Observation:</strong> First dose only; 30 minutes then reassess VS<br>
-          <strong>Side Effects:</strong> Headache; Rash, itching; Coughing, SOB; Stomach pain; Fever, chills
-              `.trim()
-      },
-      { drug: "avalglucosidase alfa", question: "What is the Brand name for avalglucosidase alfa?", answer: "Nexviazyme" },
-      { drug: "avalglucosidase alfa", question: "What are the indications for avalglucosidase alfa Nexviazyme?", answer: "Pompe’s Disease" },
-      { drug: "avalglucosidase alfa", question: "What are the Pre Meds for avalglucosidase alfa Nexviazyme?", answer: "YES-see orders" },
-      { drug: "avalglucosidase alfa", question: "What is the filter for avalglucosidase alfa Nexviazyme?", answer: "YES-see orders" },
-      { drug: "avalglucosidase alfa", question: "What should be assessed upon arrival for a patient receiving avalglucosidase alfa Nexviazyme?", answer: "VS upon arrival and with every RAMP" },
-      { drug: "avalglucosidase alfa", question: "What is the route/admin for avalglucosidase alfa Nexviazyme?", answer: "D5% only. Clear liquid diet for the first hour. See orders for RAMP rates. D5% on 2-port, med on no port" },
-      { drug: "avalglucosidase alfa", question: "What observation is required for avalglucosidase alfa Nexviazyme?", answer: "30 minutes, then reassess VS" },
-      { drug: "avalglucosidase alfa", question: "What are the side effects of avalglucosidase alfa Nexviazyme?", answer: "Back pain; Blurred vision, confusion; Fever, chills, cough, SOB; Muscle/back/joint pain; Nausea, diarrhea, vomiting; Trembling, shivering, pounding in ears" },
-      {
-        drug: "avalglucosidase alfa",
-        question: "Avalglucosidase alfa (Nexviazyme)",
-        answer: `
-          <strong>Indications:</strong> Pompe’s Disease<br>
-          <strong>Pre Meds:</strong> YES-see orders<br>
-          <strong>Assessment:</strong> VS upon arrival and with every RAMP<br>
-          <strong>Route/Admin:</strong> D5% only. Clear liquid diet for the first hour. See orders for RAMP rates. D5% on 2-port, med on no port<br>
-          <strong>Observation:</strong> 30 minutes, then reassess VS<br>
-          <strong>Side Effects:</strong> Back pain; Blurred vision, confusion; Fever, chills, cough, SOB; Muscle/back/joint pain; Nausea, diarrhea, vomiting; Trembling, shivering, pounding in ears
-              `.trim()
-      },
-      { drug: "mepolizumab", question: "What is the Brand name for mepolizumab?", answer: "Nucala" },
-      { drug: "mepolizumab", question: "What are the indications for mepolizumab Nucala?", answer: "Severe asthma" },
-      { drug: "mepolizumab", question: "What are the Pre Meds for mepolizumab Nucala?", answer: "NO" },
-      { drug: "mepolizumab", question: "What is the filter for mepolizumab Nucala?", answer: "N/A" },
-      { drug: "mepolizumab", question: "What should be assessed upon arrival for a patient receiving mepolizumab Nucala?", answer: "VS upon arrival" },
-      { drug: "mepolizumab", question: "What is the route/admin for mepolizumab Nucala?", answer: "SQ auto injection" },
-      { drug: "mepolizumab", question: "What observation is required for mepolizumab Nucala?", answer: "NONE" },
-      { drug: "mepolizumab", question: "What are the side effects of mepolizumab Nucala?", answer: "Headache, back pain; Fatigue; Redness/swelling at injection site; Respiratory tract infection; UTI" },
-      {
-        drug: "mepolizumab",
-        question: "Mepolizumab (Nucala)",
-        answer: `
-          <strong>Indications:</strong> Severe asthma<br>
-          <strong>Pre Meds:</strong> NO<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> SQ auto injection<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Headache, back pain; Fatigue; Redness/swelling at injection site; Respiratory tract infection; UTI
-              `.trim()
-      },
-      { drug: "belatacept", question: "What is the Brand name for belatacept?", answer: "Nulojix" },
-      { drug: "belatacept", question: "What are the indications for belatacept Nulojix?", answer: "Prevention of kidney transplant rejection for EBV+" },
-      { drug: "belatacept", question: "What are the Pre Meds for belatacept Nulojix?", answer: "NONE" },
-      { drug: "belatacept", question: "What is the filter for belatacept Nulojix?", answer: "0.2-1.2 micron" },
-      { drug: "belatacept", question: "What should be assessed upon arrival for a patient receiving belatacept Nulojix?", answer: "VS upon arrival" },
-      { drug: "belatacept", question: "What is the route/admin for belatacept Nulojix?", answer: "IV infusion over 30 minutes" },
-      { drug: "belatacept", question: "What observation is required for belatacept Nulojix?", answer: "NONE" },
-      { drug: "belatacept", question: "What are the side effects of belatacept Nulojix?", answer: "Stomach pain, decreased urine, bloody urine; Agitation, trembling, pounding in ears; Bloating/swelling of face, arms, hands, legs, feet; Blurred vision, dizziness, drowsiness; Bone pain, weakness; Fever, chills, SOB; BP changes, heart rate changes; Confusion; Cough" },
-      {
-        drug: "belatacept",
-        question: "Belatacept (Nulojix)",
-        answer: `
-          <strong>Indications:</strong> Prevention of kidney transplant rejection for EBV+<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> IV infusion over 30 minutes<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Stomach pain, decreased urine, bloody urine; Agitation, trembling, pounding in ears; Bloating/swelling of face, arms, hands, legs, feet; Blurred vision, dizziness, drowsiness; Bone  Bone pain, weakness; Fever, chills, SOB; BP changes, heart rate changes; Confusion; Cough
-              `.trim()
-      },
-      { drug: "alpha1-proteinase inhibitor", question: "What is the Brand name for alpha1-proteinase inhibitor?", answer: "Prolastin C/Aralast NP/Glassia/Zemaira" },
-      { drug: "alpha1-proteinase inhibitor", question: "What are the indications for alpha1-proteinase inhibitor Prolastin C/Aralast NP/Glassia/Zemaira?", answer: "Emphysema caused by alpha1-antitrypsin deficiency" },
-      { drug: "alpha1-proteinase inhibitor", question: "What are the Pre Meds for alpha1-proteinase inhibitor Prolastin C/Aralast NP/Glassia/Zemaira?", answer: "NONE" },
-      { drug: "alpha1-proteinase inhibitor", question: "What is the filter for alpha1-proteinase inhibitor Prolastin C/Aralast NP/Glassia/Zemaira?", answer: "Yes-in chamber" },
-      { drug: "alpha1-proteinase inhibitor", question: "What should be assessed upon arrival for a patient receiving alpha1-proteinase inhibitor Prolastin C/Aralast NP/Glassia/Zemaira?", answer: "VS upon arrival" },
-      { drug: "alpha1-proteinase inhibitor", question: "What is the route/admin for alpha1-proteinase inhibitor Prolastin C/Aralast NP/Glassia/Zemaira?", answer: "IV infusion over 20-30 minutes" },
-      { drug: "alpha1-proteinase inhibitor", question: "What observation is required for alpha1-proteinase inhibitor Prolastin C/Aralast NP/Glassia/Zemaira?", answer: "NONE" },
-      { drug: "alpha1-proteinase inhibitor", question: "What are the side effects of alpha1-proteinase inhibitor Prolastin C/Aralast NP/Glassia/Zemaira?", answer: "Headache, dizziness, blurred vision; Nausea, diarrhea, vomiting; Fever, cough, sore throat, SOB; Back pain, joint pain, muscle pain; Rash, itching; Drowsiness" },
-      {
-        drug: "alpha1-proteinase inhibitor",
-        question: "Alpha1-proteinase inhibitor (Prolastin C/Aralast NP/Glassia/Zemaira)",
-        answer: `
-          <strong>Indications:</strong> Emphysema caused by alpha1-antitrypsin deficiency<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> IV infusion over 20-30 minutes<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Headache, dizziness, blurred vision; Nausea, diarrhea, vomiting; Fever, cough, sore throat, SOB; Back pain, joint pain, muscle pain; Rash, itching; Drowsiness
-              `.trim()
-      },
-      { drug: "denosumab", question: "What is the Brand name for denosumab?", answer: "Prolia" },
-      { drug: "denosumab", question: "What are the indications for denosumab Prolia?", answer: "Osteoporosis" },
-      { drug: "denosumab", question: "What are the Pre Meds for denosumab Prolia?", answer: "NONE" },
-      { drug: "denosumab", question: "What is the filter for denosumab Prolia?", answer: "N/A" },
-      { drug: "denosumab", question: "What should be assessed upon arrival for a patient receiving denosumab Prolia?", answer: "VS upon arrival, check recent calcium (not <8.5) & creatinine clearance (not <35) levels or draw labs prior to injection" },
-      { drug: "denosumab", question: "What is the route/admin for denosumab Prolia?", answer: "SQ injection given every 6 months" },
-      { drug: "denosumab", question: "What observation is required for denosumab Prolia?", answer: "Rocco patients only: First injection 30 minutes then reassess VS. Rocco requires form to be filled out & faxed" },
-      { drug: "denosumab", question: "What are the side effects of denosumab Prolia?", answer: "Pain, redness, swelling at injection site; Bone, joint, muscle pain; Low calcium levels; Bladder infection; Rash, itching, SOB; Risk for infection" },
-      {
-        drug: "denosumab",
-        question: "Denosumab (Prolia)",
-        answer: `
-          <strong>Indications:</strong> Osteoporosis<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival, check recent calcium (not <8.5) & creatinine clearance (not <35) levels or draw labs prior to injection<br>
-          <strong>Route/Admin:</strong> SQ injection given every 6 months<br>
-          <strong>Observation:</strong> Rocco patients only: First injection 30 minutes then reassess VS. Rocco requires form to be filled out & faxed<br>
-          <strong>Side Effects:</strong> Pain, redness, swelling at injection site; Bone, joint, muscle pain; Low calcium levels; Bladder infection; Rash, itching, SOB; Risk for infection
-              `.trim()
-      },
-      { drug: "risankizumab-rzaa", question: "What is the Brand name for risankizumab-rzaa?", answer: "Skyrizi" },
-      { drug: "risankizumab-rzaa", question: "What are the indications for risankizumab-rzaa Skyrizi?", answer: "Plaque psoriasis, psoriatic arthritis, Crohn’s Disease, UC" },
-      { drug: "risankizumab-rzaa", question: "What are the Pre Meds for risankizumab-rzaa Skyrizi?", answer: "YES-see orders" },
-      { drug: "risankizumab-rzaa", question: "What is the filter for risankizumab-rzaa Skyrizi?", answer: "NONE" },
-      { drug: "risankizumab-rzaa", question: "What should be assessed upon arrival for a patient receiving risankizumab-rzaa Skyrizi?", answer: "VS upon arrival and at end of infusion" },
-      { drug: "risankizumab-rzaa", question: "What is the route/admin for risankizumab-rzaa Skyrizi?", answer: "IV infusion over 60 minutes (weeks 0, 4, 8); SQ injection (week 12 and every 8 weeks thereafter)" },
-      { drug: "risankizumab-rzaa", question: "What observation is required for risankizumab-rzaa Skyrizi?", answer: "30 minutes first dose only" },
-      { drug: "risankizumab-rzaa", question: "What are the side effects of risankizumab-rzaa Skyrizi?", answer: "Dizziness, fainting, decreased BP; Swelling of face, eyelids, lips, mouth; SOB, chest tightness; Rash, hives, itching; Risk for infection" },
-      {
-        drug: "risankizumab-rzaa",
-        question: "Risankizumab-rzaa (Skyrizi)",
-        answer: `
-          <strong>Indications:</strong> Plaque psoriasis, psoriatic arthritis, Crohn’s Disease, UC<br>
-          <strong>Pre Meds:</strong> YES-see orders<br>
-          <strong>Assessment:</strong> VS upon arrival and at end of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion over 60 minutes (weeks 0, 4, 8); SQ injection (week 12 and every 8 weeks thereafter)<br>
-          <strong>Observation:</strong> 30 minutes first dose only<br>
-          <strong>Side Effects:</strong> Dizziness, fainting, decreased BP; Swelling of face, eyelids, lips, mouth; SOB, chest tightness; Rash, hives, itching; Risk for infection
-              `.trim()
-      },
-      { drug: "natalizumab", question: "What is the Brand name for natalizumab?", answer: "Tysabri" },
-      { drug: "natalizumab", question: "What are the indications for natalizumab Tysabri?", answer: "Relapsing MS" },
-      { drug: "natalizumab", question: "What are the Pre Meds for natalizumab Tysabri?", answer: "NONE" },
-      { drug: "natalizumab", question: "What is the filter for natalizumab Tysabri?", answer: "NONE" },
-      { drug: "natalizumab", question: "What should be assessed upon arrival for a patient receiving natalizumab Tysabri?", answer: "VS upon arrival and at end of infusion" },
-      { drug: "natalizumab", question: "What is the route/admin for natalizumab Tysabri?", answer: "IV infusion over 1 hour" },
-      { drug: "natalizumab", question: "What observation is required for natalizumab Tysabri?", answer: "1 hour then reassess VS" },
-      { drug: "natalizumab", question: "What are the side effects of natalizumab Tysabri?", answer: "Headache; Dark urine; Fatigue; Dizziness, nausea; Diarrhea; Stomach discomfort; Fever, chills; Rash; Back pain" },
-      {
-        drug: "natalizumab",
-        question: "Natalizumab (Tysabri)",
-        answer: `
-          <strong>Indications:</strong> Relapsing MS<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival and at end of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion over 1 hour<br>
-          <strong>Observation:</strong> 1 hour then reassess VS<br>
-          <strong>Side Effects:</strong> Headache; Dark urine; Fatigue; Dizziness, nausea; Diarrhea; Stomach discomfort; Fever, chills; Rash; Back pain
-              `.trim()
-      },
-      { drug: "ravulizumab-cwvz", question: "What is the Brand name for ravulizumab-cwvz?", answer: "Ultomiris" },
-      { drug: "ravulizumab-cwvz", question: "What are the indications for ravulizumab-cwvz Ultomiris?", answer: "Paroxysmal nocturnal hemoglobinuria, TMA in pts with aHUS, myasthenia gravis" },
-      { drug: "ravulizumab-cwvz", question: "What are the Pre Meds for ravulizumab-cwvz Ultomiris?", answer: "NONE" },
-      { drug: "ravulizumab-cwvz", question: "What is the filter for ravulizumab-cwvz Ultomiris?", answer: "0.2-0.22 micron" },
-      { drug: "ravulizumab-cwvz", question: "What should be assessed upon arrival for a patient receiving ravulizumab-cwvz Ultomiris?", answer: "VS upon arrival and at end of infusion" },
-      { drug: "ravulizumab-cwvz", question: "What is the route/admin for ravulizumab-cwvz Ultomiris?", answer: "IV infusion over 1 hour" },
-      { drug: "ravulizumab-cwvz", question: "What observation is required for ravulizumab-cwvz Ultomiris?", answer: "1 hour then reassess VS" },
-      { drug: "ravulizumab-cwvz", question: "What are the side effects of ravulizumab-cwvz Ultomiris?", answer: "Nausea, diarrhea; Back/abdominal pain; Headache; Cough; Increased BP; Muscle/joint pain" },
-      {
-        drug: "ravulizumab-cwvz",
-        question: "Ravulizumab-cwvz (Ultomiris)",
-        answer: `
-          <strong>Indications:</strong> Paroxysmal nocturnal hemoglobinuria, TMA in pts with aHUS, myasthenia gravis<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival and at end of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion over 1 hour<br>
-          <strong>Observation:</strong> 1 hour then reassess VS<br>
-          <strong>Side Effects:</strong> Nausea, diarrhea; Back/abdominal pain; Headache; Cough; Increased BP; Muscle/joint pain
-              `.trim()
-      },
-      { drug: "eptinezumab", question: "What is the Brand name for eptinezumab?", answer: "Vytepti" },
-      { drug: "eptinezumab", question: "What are the indications for eptinezumab Vytepti?", answer: "Migraine headaches" },
-      { drug: "eptinezumab", question: "What are the Pre Meds for eptinezumab Vytepti?", answer: "NONE" },
-      { drug: "eptinezumab", question: "What is the filter for eptinezumab Vytepti?", answer: "0.2 micron or 0.22 micron in chamber" },
-      { drug: "eptinezumab", question: "What should be assessed upon arrival for a patient receiving eptinezumab Vytepti?", answer: "VS upon arrival" },
-      { drug: "eptinezumab", question: "What is the route/admin for eptinezumab Vytepti?", answer: "IV infusion over 30 minutes" },
-      { drug: "eptinezumab", question: "What observation is required for eptinezumab Vytepti?", answer: "NONE" },
-      { drug: "eptinezumab", question: "What are the side effects of eptinezumab Vytepti?", answer: "Cold-like symptoms; Swelling face; Wheezing; Nausea, vomiting; Tachycardia" },
-      {
-        drug: "eptinezumab",
-        question: "Eptinezumab (Vytepti)",
-        answer: `
-          <strong>Indications:</strong> Migraine headaches<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> IV infusion over 30 minutes<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Cold-like symptoms; Swelling face; Wheezing; Nausea, vomiting; Tachycardia
-              `.trim()
-      },
-      { drug: "efgartigimod alfa", question: "What is the Brand name for efgartigimod alfa?", answer: "Vyvgart" },
-      { drug: "efgartigimod alfa", question: "What are the indications for efgartigimod alfa Vyvgart?", answer: "Myasthenia gravis" },
-      { drug: "efgartigimod alfa", question: "What are the Pre Meds for efgartigimod alfa Vyvgart?", answer: "NONE" },
-      { drug: "efgartigimod alfa", question: "What is the filter for efgartigimod alfa Vyvgart?", answer: "0.2 micron in chamber for IV" },
-      { drug: "efgartigimod alfa", question: "What should be assessed upon arrival for a patient receiving efgartigimod alfa Vyvgart?", answer: "VS upon arrival and at end of infusion" },
-      { drug: "efgartigimod alfa", question: "What is the route/admin for efgartigimod alfa Vyvgart?", answer: "IV infusion over 1 hour or SQ infusion w/ butterfly over 90 seconds (draw 0.4 over the dose)" },
-      { drug: "efgartigimod alfa", question: "What observation is required for efgartigimod alfa Vyvgart?", answer: "1 hour for IV, 30 mins for SQ then recheck VS" },
-      { drug: "efgartigimod alfa", question: "What are the side effects of efgartigimod alfa Vyvgart?", answer: "Upset stomach; Chest pain; Dry mouth, sore throat; SOB; Drowsiness; Headache, fever" },
-      {
-        drug: "efgartigimod alfa",
-        question: "Efgartigimod alfa (Vyvgart)",
-        answer: `
-          <strong>Indications:</strong> Myasthenia gravis<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival and at end of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion over 1 hour or SQ infusion w/ butterfly over 90 seconds (draw 0.4 over the dose)<br>
-          <strong>Observation:</strong> 1 hour for IV, 30 mins for SQ then recheck VS<br>
-          <strong>Side Effects:</strong> Upset stomach; Chest pain; Dry mouth, sore throat; SOB; Drowsiness; Headache, fever
-              `.trim()
-      },
-      { drug: "omalizumab", question: "What is the Brand name for omalizumab?", answer: "Xolair" },
-      { drug: "omalizumab", question: "What are the indications for omalizumab Xolair?", answer: "Asthma, chronic rhinosinusitis, urticaria" },
-      { drug: "omalizumab", question: "What are the Pre Meds for omalizumab Xolair?", answer: "NONE" },
-      { drug: "omalizumab", question: "What is the filter for omalizumab Xolair?", answer: "N/A" },
-      { drug: "omalizumab", question: "What should be assessed upon arrival for a patient receiving omalizumab Xolair?", answer: "VS upon arrival" },
-      { drug: "omalizumab", question: "What is the route/admin for omalizumab Xolair?", answer: "SQ injection in divided doses at least 1 inch apart and 2 inches from naval" },
-      { drug: "omalizumab", question: "What observation is required for omalizumab Xolair?", answer: "1 hour for first dose. 30 minutes thereafter then recheck VS" },
-      { drug: "omalizumab", question: "What are the side effects of omalizumab Xolair?", answer: "Headache, fever; Joint pain; Dizziness, fatigue, hypotension; Increased risk of parasitic infection" },
-      {
-        drug: "omalizumab",
-        question: "Omalizumab (Xolair)",
-        answer: `
-          <strong>Indications:</strong> Asthma, chronic rhinosinusitis, urticaria<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> SQ injection in divided doses at least 1 inch apart and 2 inches from naval<br>
-          <strong>Observation:</strong> 1 hour for first dose. 30 minutes thereafter then recheck VS<br>
-          <strong>Side Effects:</strong> Headache, fever; Joint pain; Dizziness, fatigue, hypotension; Increased risk of parasitic infection
-              `.trim()
-      },
-      { drug: "ertapenem", question: "What is the Brand name for ertapenem?", answer: "Invanz" },
-      { drug: "ertapenem", question: "What are the indications for ertapenem Invanz?", answer: "Infection" },
-      { drug: "ertapenem", question: "What are the Pre Meds for ertapenem Invanz?", answer: "NONE" },
-      { drug: "ertapenem", question: "What is the filter for ertapenem Invanz?", answer: "NONE" },
-      { drug: "ertapenem", question: "What should be assessed upon arrival for a patient receiving ertapenem Invanz?", answer: "VS upon arrival" },
-      { drug: "ertapenem", question: "What is the route/admin for ertapenem Invanz?", answer: "IV infusion over 30 minutes" },
-      { drug: "ertapenem", question: "What observation is required for ertapenem Invanz?", answer: "NONE" },
-      { drug: "ertapenem", question: "What are the side effects of ertapenem Invanz?", answer: "Nausea, headache, fever, vomiting; Abdominal pain, constipation; Rash, itching, pruritus; Increased/decreased HR, BP; Fatigue, dizziness; Chest pain" },
-      {
-        drug: "ertapenem",
-        question: "Ertapenem (Invanz)",
-        answer: `
-          <strong>Indications:</strong> Infection<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> IV infusion over 30 minutes<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Nausea, headache, fever, vomiting; Abdominal pain, constipation; Rash, itching, pruritus; Increased/decreased HR, BP; Fatigue, dizziness; Chest pain
-              `.trim()
-      },
-      { drug: "paliperidone", question: "What is the Brand name for paliperidone?", answer: "Invega/Sustenna" },
-      { drug: "paliperidone", question: "What are the indications for paliperidone Invega/Sustenna?", answer: "Bipolar, schizophrenia" },
-      { drug: "paliperidone", question: "What are the Pre Meds for paliperidone Invega/Sustenna?", answer: "NONE" },
-      { drug: "paliperidone", question: "What is the filter for paliperidone Invega/Sustenna?", answer: "N/A" },
-      { drug: "paliperidone", question: "What should be assessed upon arrival for a patient receiving paliperidone Invega/Sustenna?", answer: "VS upon arrival" },
-      { drug: "paliperidone", question: "What is the route/admin for paliperidone Invega/Sustenna?", answer: "IM injection, shake before using" },
-      { drug: "paliperidone", question: "What observation is required for paliperidone Invega/Sustenna?", answer: "NONE" },
-      { drug: "paliperidone", question: "What are the side effects of paliperidone Invega/Sustenna?", answer: "Drowsiness, dizziness; Unable to sit still; Involuntary eye movements; Avoid alcohol use" },
-      {
-        drug: "paliperidone",
-        question: "Paliperidone (Invega/Sustenna)",
-        answer: `
-          <strong>Indications:</strong> Bipolar, schizophrenia<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> IM injection, shake before using<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Drowsiness, dizziness; Unable to sit still; Involuntary eye movements; Avoid alcohol use
-              `.trim()
-      },
-      { drug: "cosyntropin", question: "What is the Brand name for cosyntropin?", answer: "ACTH Stim Test" },
-      { drug: "cosyntropin", question: "What are the indications for cosyntropin ACTH Stim Test?", answer: "Assess function of adrenal gland’s stress response" },
-      { drug: "cosyntropin", question: "What are the Pre Meds for cosyntropin ACTH Stim Test?", answer: "Fasting, take no meds" },
-      { drug: "cosyntropin", question: "What is the filter for cosyntropin ACTH Stim Test?", answer: "N/A" },
-      { drug: "cosyntropin", question: "What should be assessed upon arrival for a patient receiving cosyntropin ACTH Stim Test?", answer: "Vitals upon arrival" },
-      { drug: "cosyntropin", question: "What is the route/admin for cosyntropin ACTH Stim Test?", answer: "Take blood, label “baseline”. Give cosyntropin IVP. Take blood at 30 mins, label “30 mins”. Take blood again at 60 mins, label “60 mins”" },
-      { drug: "cosyntropin", question: "What observation is required for cosyntropin ACTH Stim Test?", answer: "NONE" },
-      { drug: "cosyntropin", question: "What are the side effects of cosyntropin ACTH Stim Test?", answer: "Face swelling; Nervousness; Chest pain, discomfort; Pounding in ears; Difficulty swallowing; SOB; Irregular/racing heart rate; Fatigue/weakness; Headache, dizziness; Blurred vision; Rash, itching; Tingling of hands/feet" },
-      {
-        drug: "cosyntropin",
-        question: "Cosyntropin (ACTH Stim Test)",
-        answer: `
-          <strong>Indications:</strong> Assess function of adrenal gland’s stress response<br>
-          <strong>Pre Meds:</strong> Fasting, take no meds<br>
-          <strong>Assessment:</strong> Vitals upon arrival<br>
-          <strong>Route/Admin:</strong> Take blood, label “baseline”. Give cosyntropin IVP. Take blood at 30 mins, label “30 mins”. Take blood again at 60 mins, label “60 mins”<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Face swelling; Nervousness; Chest pain, discomfort; Pounding in ears; Difficulty swallowing; SOB; Irregular/racing heart rate; Fatigue/weakness; Headache, dizziness; Blurred vision; Rash, itching; Tingling of hands/feet
-              `.trim()
-      },
-      { drug: "darbepoetin alfa", question: "What is the Brand name for darbepoetin alfa?", answer: "Aranesp" },
-      { drug: "darbepoetin alfa", question: "What are the indications for darbepoetin alfa Aranesp?", answer: "Increases RBCs in people with chronic renal failure or chemo" },
-      { drug: "darbepoetin alfa", question: "What are the Pre Meds for darbepoetin alfa Aranesp?", answer: "NONE" },
-      { drug: "darbepoetin alfa", question: "What is the filter for darbepoetin alfa Aranesp?", answer: "N/A" },
-      { drug: "darbepoetin alfa", question: "What should be assessed upon arrival for a patient receiving darbepoetin alfa Aranesp?", answer: "Vitals upon arrival" },
-      { drug: "darbepoetin alfa", question: "What is the route/admin for darbepoetin alfa Aranesp?", answer: "SQ injection, consult provider if HGB is <10" },
-      { drug: "darbepoetin alfa", question: "What observation is required for darbepoetin alfa Aranesp?", answer: "NONE" },
-      { drug: "darbepoetin alfa", question: "What are the side effects of darbepoetin alfa Aranesp?", answer: "Increased BP; Nausea; Seizures; Pain in legs; SOB, fainting; Headache; Chest pain; Tingling in hands/feet; Fatigue, weakness" },
-      {
-        drug: "darbepoetin alfa",
-        question: "Darbepoetin alfa (Aranesp)",
-        answer: `
-          <strong>Indications:</strong> Increases RBCs in people with chronic renal failure or chemo<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> Vitals upon arrival<br>
-          <strong>Route/Admin:</strong> SQ injection, consult provider if HGB is <10<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Increased BP; Nausea; Seizures; Pain in legs; SOB, fainting; Headache; Chest pain; Tingling in hands/feet; Fatigue, weakness
-              `.trim()
-      },
-      { drug: "zolendronic acid", question: "What is the Brand name for zolendronic acid?", answer: "Reclast" },
-      { drug: "zolendronic acid", question: "What are the indications for zolendronic acid Reclast?", answer: "Osteoporosis" },
-      { drug: "zolendronic acid", question: "What are the Pre Meds for zolendronic acid Reclast?", answer: "NONE" },
-      { drug: "zolendronic acid", question: "What is the filter for zolendronic acid Reclast?", answer: "NONE" },
-      { drug: "zolendronic acid", question: "What should be assessed upon arrival for a patient receiving zolendronic acid Reclast?", answer: "Vitals upon arrival, check CrCl is >35 and Calcium >8.5" },
-      { drug: "zolendronic acid", question: "What is the route/admin for zolendronic acid Reclast?", answer: "IV infusion over 20 minutes. Glass bottle. Vent chamber. Given once per year" },
-      { drug: "zolendronic acid", question: "What observation is required for zolendronic acid Reclast?", answer: "NONE" },
-      { drug: "zolendronic acid", question: "What are the side effects of zolendronic acid Reclast?", answer: "Abdominal pain/stomachache; Back pain, bladder pain; Bloody or cloudy urine; Bone pain; Burning, crawling, itching, numbness, “pins & needles” feelings" },
-      {
-        drug: "zolendronic acid",
-        question: "Zolendronic acid (Reclast)",
-        answer: `
-          <strong>Indications:</strong> Osteoporosis<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> Vitals upon arrival, check CrCl is >35 and Calcium >8.5<br>
-          <strong>Route/Admin:</strong> IV infusion over 20 minutes. Glass bottle. Vent chamber. Given once per year<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Abdominal pain/stomachache; Back pain, bladder pain; Bloody or cloudy urine; Bone pain; Burning, crawling, itching, numbness, “pins & needles” feelings
-              `.trim()
-      },
-      { drug: "romosozumab-aqqg", question: "What is the Brand name for romosozumab-aqqg?", answer: "Evenity" },
-      { drug: "romosozumab-aqqg", question: "What are the indications for romosozumab-aqqg Evenity?", answer: "Osteoporosis, osteopenia" },
-      { drug: "romosozumab-aqqg", question: "What are the Pre Meds for romosozumab-aqqg Evenity?", answer: "NONE" },
-      { drug: "romosozumab-aqqg", question: "What is the filter for romosozumab-aqqg Evenity?", answer: "N/A" },
-      { drug: "romosozumab-aqqg", question: "What should be assessed upon arrival for a patient receiving romosozumab-aqqg Evenity?", answer: "VS upon arrival. Check that calcium is >8.5" },
-      { drug: "romosozumab-aqqg", question: "What is the route/admin for romosozumab-aqqg Evenity?", answer: "Two SQ injections given every 4 weeks for 12 months" },
-      { drug: "romosozumab-aqqg", question: "What observation is required for romosozumab-aqqg Evenity?", answer: "Recommended 30 mins first injection. Rocco requires form filled out & faxed" },
-      { drug: "romosozumab-aqqg", question: "What are the side effects of romosozumab-aqqg Evenity?", answer: "Headaches; Bone and joint pain; Hypocalcemia" },
-      {
-        drug: "romosozumab-aqqg",
-        question: "Romosozumab-aqqg (Evenity)",
-        answer: `
-          <strong>Indications:</strong> Osteoporosis, osteopenia<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival. Check that calcium is >8.5<br>
-          <strong>Route/Admin:</strong> Two SQ injections given every 4 weeks for 12 months<br>
-          <strong>Observation:</strong> Recommended 30 mins first injection. Rocco requires form filled out & faxed<br>
-          <strong>Side Effects:</strong> Headaches; Bone and joint pain; Hypocalcemia
-              `.trim()
-      },
-      { drug: "ustekinumab", question: "What is the Brand name for ustekinumab?", answer: "Stelara" },
-      { drug: "ustekinumab", question: "What are the indications for ustekinumab Stelara?", answer: "Plaque psoriasis, psoriatic arthritis, ulcerative colitis, Crohn’s" },
-      { drug: "ustekinumab", question: "What are the Pre Meds for ustekinumab Stelara?", answer: "NONE" },
-      { drug: "ustekinumab", question: "What is the filter for ustekinumab Stelara?", answer: "Yes, in-line 0.2 micron" },
-      { drug: "ustekinumab", question: "What should be assessed upon arrival for a patient receiving ustekinumab Stelara?", answer: "VS upon arrival" },
-      { drug: "ustekinumab", question: "What is the route/admin for ustekinumab Stelara?", answer: "IV infusion over 1 hour for one dose, then SQ every 8 weeks" },
-      { drug: "ustekinumab", question: "What observation is required for ustekinumab Stelara?", answer: "NONE" },
-      { drug: "ustekinumab", question: "What are the side effects of ustekinumab Stelara?", answer: "Fatigue, dizziness, headache; Nausea, vomiting; Chest discomfort, SOB; Stomach or back pain" },
-      {
-        drug: "ustekinumab",
-        question: "Ustekinumab (Stelara)",
-        answer: `
-          <strong>Indications:</strong> Plaque psoriasis, psoriatic arthritis, ulcerative colitis, Crohn’s<br>
-          <strong>Pre Meds:</strong> NONE<br>
-          <strong>Assessment:</strong> VS upon arrival<br>
-          <strong>Route/Admin:</strong> IV infusion over 1 hour for one dose, then SQ every 8 weeks<br>
-          <strong>Observation:</strong> NONE<br>
-          <strong>Side Effects:</strong> Fatigue, dizziness, headache; Nausea, vomiting; Chest discomfort, SOB; Stomach or back pain
-              `.trim()
-      },
-      
-      { drug: "Platelets", question: "What are the indications for Platelets?", answer: "Low platelets" },
-      { drug: "Platelets", question: "What are the Pre Meds for Platelets?", answer: "Yes, see orders" },
-      { drug: "Platelets", question: "What is the filter for Platelets?", answer: "NONE" },
-      { drug: "Platelets", question: "What should be assessed upon arrival for a patient receiving Platelets?", answer: "Verify labs needed; VS/lungs/heart/skin/neuro/IV at beginning of infusion; VS at 15 minutes; VS/lungs/heart/skin/neuro/IV at end of infusion" },
-      { drug: "Platelets", question: "What is the route/admin for Platelets?", answer: "IV infusion. Start at 999/75 to get it to patient. Then set at 75mL/16mL (about 15 mins). After 15 min check set at 999mL/bag volume minus 50mL" },
-      { drug: "Platelets", question: "What observation is required for Platelets?", answer: "VS/lungs/heart/skin/neuro/IV at end of infusion; Don’t forget to stop infusion in computer" },
-      { drug: "Platelets", question: "What are the side effects of Platelets?", answer: "Fever, chills; Itching; SOB" },
-      {
-        drug: "platelets",
-        question: "Platelets",
-        answer: `
-          <strong>Indications:</strong> Low platelets<br>
-          <strong>Pre Meds:</strong> Yes, see orders<br>
-          <strong>Assessment:</strong> Verify labs needed; VS/lungs/heart/skin/neuro/IV at beginning of infusion; VS at 15 minutes; VS/lungs/heart/skin/neuro/IV at end of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion. Start at 999/75 to get it to patient. Then set at 75mL/16mL (about 15 mins). After 15 min check set at 999mL/bag volume minus 50mL<br>
-          <strong>Observation:</strong> VS/lungs/heart/skin/neuro/IV at end of infusion; Don’t forget to stop infusion in computer<br>
-          <strong>Side Effects:</strong> Fever, chills; Itching; SOB
-              `.trim()
-      },
-      
-      { drug: "IVIG", question: "What are the indications for IVIG?", answer: "Immune disorders" },
-      { drug: "IVIG", question: "What are the Pre Meds for IVIG?", answer: "Yes, see orders" },
-      { drug: "IVIG", question: "What is the filter for IVIG?", answer: "NONE" },
-      { drug: "IVIG", question: "What should be assessed upon arrival for a patient receiving IVIG?", answer: "Check orders for NS needs; VS/lungs/heart/skin/neuro/IV at BEGINNING, MIDDLE, and END of infusion" },
-      { drug: "IVIG", question: "What is the route/admin for IVIG?", answer: "IV infusion over several hours. See orders for RAMP rates" },
-      { drug: "IVIG", question: "What observation is required for IVIG?", answer: "30 minutes then reassess VS (no obs for SQ IVIG)" },
-      { drug: "IVIG", question: "What are the side effects of IVIG?", answer: "Headaches; Flu-like symptoms; Fever, chills, muscle aches; Rash, itching; SOB" },
-      {
-        drug: "ivig",
-        question: "IVIG",
-        answer: `
-          <strong>Indications:</strong> Immune disorders<br>
-          <strong>Pre Meds:</strong> Yes, see orders<br>
-          <strong>Assessment:</strong> Check orders for NS needs; VS/lungs/heart/skin/neuro/IV at BEGINNING, MIDDLE, and END of infusion<br>
-          <strong>Route/Admin:</strong> IV infusion over several hours. See orders for RAMP rates<br>
-          <strong>Observation:</strong> 30 minutes then reassess VS (no obs for SQ IVIG)<br>
-          <strong>Side Effects:</strong> Headaches; Flu-like symptoms; Fever, chills, muscle aches; Rash, itching; SOB
-              `.trim()
-      },
-      { drug: "rituximab-abbs", question: "What is the Brand name for rituximab-abbs?", answer: "Truxima" },
-      { drug: "rituximab-abbs", question: "What are the indications for rituximab-abbs Truxima?", answer: "Helps immune system fight cancer cells, RA" },
-      { drug: "rituximab-abbs", question: "What are the Pre Meds for rituximab-abbs Truxima?", answer: "N/A" },
-      { drug: "rituximab-abbs", question: "What is the filter for rituximab-abbs Truxima?", answer: "N/A" },
-      { drug: "rituximab-abbs", question: "What should be assessed upon arrival for a patient receiving rituximab-abbs Truxima?", answer: "VS upon arrival, with every ramp" },
-      { drug: "rituximab-abbs", question: "What is the route/admin for rituximab-abbs Truxima?", answer: "N/A" },
-      { drug: "rituximab-abbs", question: "What observation is required for rituximab-abbs Truxima?", answer: "N/A" },
-      { drug: "rituximab-abbs", question: "What are the side effects of rituximab-abbs Truxima?", answer: "N/A" },
-      {
-        drug: "rituximab-abbs",
-        question: "Rituximab-abbs (Truxima)",
-        answer: `
-          <strong>Indications:</strong> Helps immune system fight cancer cells, RA<br>
-          <strong>Pre Meds:</strong> N/A<br>
-          <strong>Assessment:</strong> VS upon arrival, with every ramp<br>
-          <strong>Route/Admin:</strong> N/A<br>
-          <strong>Observation:</strong> N/A<br>
-          <strong>Side Effects:</strong> N/A
-              `.trim()
-      }, 
-      { drug: "Lab Tube Draw Order", question: "What is the route/admin for Lab Tube Draw Order?", answer: "Clear; Light Blue-PT/INR, PTT, Fibrinogen, Anti-Xa, D-Dimer, Thromboelastography; Red-Serum Tests, Therapeutic Drug Monitoring; Gold-BMP, CMP, Liver, Lipid, TSH, Hormones, Vitamins, Infectious Disease, Serology; Green-Arterial Blood Gases, Ammonia, Troponin, Ionized Calcium; Light Green-; Pink-goes to blood bank, not lab-Blood Type, Crossmatch, Antibody; Lavender-CBC, A1c, ESR, Sickle Cell; Gray-no tourniquet-Fasting BS, Glucose Tolerance, Lactic Acid, Blood Alcohol; Royal Blue-Heavy Metals, Minerals, Micronutrients" },
-      {
-        drug: "lab tube draw order",
-        question: "Lab Tube Draw Order",
-        answer: `
-          <strong>Indications:</strong> N/A<br>
-          <strong>Pre Meds:</strong> N/A<br>
-          <strong>Assessment:</strong> N/A<br>
-          <strong>Route/Admin:</strong> Clear; Light Blue-PT/INR, PTT, Fibrinogen, Anti-Xa, D-Dimer, Thromboelastography; Red-Serum Tests, Therapeutic Drug Monitoring; Gold-BMP, CMP, Liver, Lipid, TSH, Hormones, Vitamins, Infectious Disease, Serology; Green-Arterial Blood Gases, Ammonia, Troponin, Ionized Calcium; Light Green-; Pink-goes to blood bank, not lab-Blood Type, Crossmatch, Antibody; Lavender-CBC, A1c, ESR, Sickle Cell; Gray-no tourniquet-Fasting BS, Glucose Tolerance, Lactic Acid, Blood Alcohol; Royal Blue-Heavy Metals, Minerals, Micronutrients<br>
-          <strong>Observation:</strong> N/A<br>
-          <strong>Side Effects:</strong> N/A
-              `.trim()
-      }
-    ];
-    flashcards.forEach((card, index) => {
-      card.id = index;
-    });
-    
+
+    // === CONFIG ===
+    const GOOGLE_SHEET_TSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vT2AU0SWUQCCt2F5ixm66b-P0hgb94EOYq7NlHM-B2ijn5gTReD4HNLIsncYPku--OIWM-TPpPWYclF/pub?gid=1025900712&single=true&output=tsv';
+    const DB_NAME = 'drugFlashcardsDB';
+    const DB_VERSION = 1;
+    const STORE_FLASHCARDS = 'flashcards';
+    const STORE_METADATA = 'metadata';
+    const REFRESH_INTERVAL_MS = 86400000; // 24 hours
+
+    let deck = [];
     let currentIndex = 0;
-    let deck = [...flashcards];
     let isReviewMode = false;
     let isFocusMode = false;
     let focusDrug = null;
@@ -722,6 +172,144 @@ const flashcards = [
     const focusOverlay = document.getElementById('focusOverlay');
     const drugList = document.getElementById('drugList');
     const closeFocus = document.getElementById('closeFocus');
+
+    // Add Refresh Button
+    const controls = document.querySelector('.controls');
+    const refreshBtn = document.createElement('button');
+    refreshBtn.textContent = 'Refresh Data';
+    refreshBtn.className = 'btn-refresh';
+    refreshBtn.addEventListener('click', forceRefreshData);
+    controls.appendChild(refreshBtn);
+
+    // === INDEXEDDB HELPERS ===
+    function openDB() {
+      return new Promise((resolve, reject) => {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = () => reject(request.error);
+        request.onsuccess = () => resolve(request.result);
+        request.onupgradeneeded = (event) => {
+          const db = event.target.result;
+          if (!db.objectStoreNames.contains(STORE_FLASHCARDS)) {
+            db.createObjectStore(STORE_FLASHCARDS, { keyPath: 'id', autoIncrement: true });
+          }
+          if (!db.objectStoreNames.contains(STORE_METADATA)) {
+            db.createObjectStore(STORE_METADATA, { keyPath: 'key' });
+          }
+        };
+      });
+    }
+
+    async function getAllFromStore(storeName) {
+      const db = await openDB();
+      return new Promise((resolve) => {
+        const transaction = db.transaction(storeName, 'readonly');
+        const store = transaction.objectStore(storeName);
+        const request = store.getAll();
+        request.onsuccess = () => resolve(request.result);
+        transaction.oncomplete = () => db.close();
+      });
+    }
+
+    async function putToStore(storeName, data) {
+      const db = await openDB();
+      return new Promise((resolve) => {
+        const transaction = db.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
+        store.put(data);
+        transaction.oncomplete = () => { db.close(); resolve(); };
+      });
+    }
+
+    async function clearStore(storeName) {
+      const db = await openDB();
+      return new Promise((resolve) => {
+        const transaction = db.transaction(storeName, 'readwrite');
+        const store = transaction.objectStore(storeName);
+        store.clear();
+        transaction.oncomplete = () => { db.close(); resolve(); };
+      });
+    }
+
+    async function getMetadata(key) {
+      const metadata = await getAllFromStore(STORE_METADATA);
+      return metadata.find(m => m.key === key)?.value;
+    }
+
+    async function setMetadata(key, value) {
+      await putToStore(STORE_METADATA, { key, value });
+    }
+
+    // === DATA FETCHING ===
+    async function fetchFromGoogleSheet() {
+      try {
+        const response = await fetch(GOOGLE_SHEET_TSV_URL);
+        if (!response.ok) throw new Error('Fetch failed');
+        const tsvText = await response.text();
+        return parseTSV(tsvText);
+      } catch (error) {
+        console.error('Error fetching Google Sheet:', error);
+        showToast('Failed to fetch new data. Using cached version.', '#c0392b');
+        return null;
+      }
+    }
+
+    function parseTSV(tsvText) {
+      const lines = tsvText.split('\n').filter(line => line.trim());
+      const headers = lines[0].split('\t').map(h => h.trim());
+      const flashcards = [];
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split('\t').map(v => v.trim());
+        const card = {};
+        headers.forEach((header, idx) => {
+          card[header] = values[idx] || '';
+        });
+        flashcards.push(card);
+      }
+      flashcards.forEach((card, index) => { card.id = index; });
+      return flashcards;
+    }
+
+    async function storeFlashcards(flashcards) {
+      await clearStore(STORE_FLASHCARDS);
+      const db = await openDB();
+      const transaction = db.transaction(STORE_FLASHCARDS, 'readwrite');
+      const store = transaction.objectStore(STORE_FLASHCARDS);
+      flashcards.forEach(card => store.add(card));
+      await new Promise(resolve => transaction.oncomplete = resolve);
+      db.close();
+    }
+
+    // === REFRESH LOGIC ===
+    async function loadFlashcards() {
+      const lastFetch = await getMetadata('lastFetch');
+      const now = Date.now();
+      let flashcards = await getAllFromStore(STORE_FLASHCARDS);
+
+      if (!flashcards.length || !lastFetch || (now - lastFetch > REFRESH_INTERVAL_MS)) {
+        const freshData = await fetchFromGoogleSheet();
+        if (freshData) {
+          flashcards = freshData;
+          await storeFlashcards(flashcards);
+          await setMetadata('lastFetch', now);
+          showToast('Data refreshed from Google Sheet!', '#27ae60');
+        }
+      }
+
+      return flashcards;
+    }
+
+    async function forceRefreshData() {
+      const freshData = await fetchFromGoogleSheet();
+      if (freshData) {
+        await storeFlashcards(freshData);
+        await setMetadata('lastFetch', Date.now());
+        flashcards = freshData;
+        deck = [...flashcards];
+        currentIndex = 0;
+        updateCard();
+        showToast('Data manually refreshed!', '#27ae60');
+      }
+    }
 
     function loadProgress() {
       const savedMissed = localStorage.getItem('flashcardMissed');
@@ -837,67 +425,63 @@ const flashcards = [
     });
 
     // FOCUS MODE
-focusBtn.addEventListener('click', () => {
-    mainDeckIndex = currentIndex;
-    const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
+    focusBtn.addEventListener('click', () => {
+      mainDeckIndex = currentIndex;
+      const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
 
-    drugList.innerHTML = '';
-    // === Summaries Only Option ===
-    const summariesItem = document.createElement('div');
-    summariesItem.className = 'drug-item';
-    summariesItem.textContent = 'Summaries Only';
-    summariesItem.style.fontWeight = 'bold';
-    summariesItem.style.background = '#27ae60';  // Green to distinguish
-    summariesItem.onclick = () => {
-      focusDrug = 'Summaries';
-      deck = flashcards.filter(c => !c.question.startsWith('What'));
-      currentIndex = 0;
-      isFocusMode = true;
-      isReviewMode = false;
-      focusOverlay.style.display = 'none';
-      updateCard();
-    };
-    drugList.appendChild(summariesItem);
-  
-    // === "None" Option ===
-    const noneItem = document.createElement('div');
-    noneItem.className = 'drug-item';
-    noneItem.textContent = 'None (All Cards)';
-    noneItem.style.fontWeight = 'bold';
-    noneItem.style.background = '#95a5a6';
-    noneItem.onclick = () => {
-      deck = [...flashcards];
-      currentIndex = mainDeckIndex;
-      isFocusMode = false;
-      isReviewMode = false;
-      focusOverlay.style.display = 'none';
-      updateCard();
-    };
-    drugList.appendChild(noneItem);
-
-    // === Drug List ===
-    drugs.forEach(drug => {
-      const item = document.createElement('div');
-      item.className = 'drug-item';
-      item.textContent = drug;
-      item.onclick = () => {
-        focusDrug = drug;
-        deck = flashcards.filter(c => c.drug === drug);
+      drugList.innerHTML = '';
+      // === Summaries Only Option ===
+      const summariesItem = document.createElement('div');
+      summariesItem.className = 'drug-item';
+      summariesItem.textContent = 'Summaries Only';
+      summariesItem.style.fontWeight = 'bold';
+      summariesItem.style.background = '#27ae60';  // Green to distinguish
+      summariesItem.onclick = () => {
+        focusDrug = 'Summaries';
+        deck = flashcards.filter(c => !c.question.startsWith('What'));
         currentIndex = 0;
         isFocusMode = true;
         isReviewMode = false;
         focusOverlay.style.display = 'none';
         updateCard();
       };
-      drugList.appendChild(item);
+      drugList.appendChild(summariesItem);
+    
+      // === "None" Option ===
+      const noneItem = document.createElement('div');
+      noneItem.className = 'drug-item';
+      noneItem.textContent = 'None (All Cards)';
+      noneItem.style.fontWeight = 'bold';
+      noneItem.style.background = '#95a5a6';
+      noneItem.onclick = () => {
+        deck = [...flashcards];
+        currentIndex = mainDeckIndex;
+        isFocusMode = false;
+        isReviewMode = false;
+        focusOverlay.style.display = 'none';
+        updateCard();
+      };
+      drugList.appendChild(noneItem);
+
+      // === Drug List ===
+      drugs.forEach(drug => {
+        const item = document.createElement('div');
+        item.className = 'drug-item';
+        item.textContent = drug;
+        item.onclick = () => {
+          focusDrug = drug;
+          deck = flashcards.filter(c => c.drug === drug);
+          currentIndex = 0;
+          isFocusMode = true;
+          isReviewMode = false;
+          focusOverlay.style.display = 'none';
+          updateCard();
+        };
+        drugList.appendChild(item);
+      });
+
+      focusOverlay.style.display = 'flex';
     });
-
-    focusOverlay.style.display = 'flex';
-  });
-
-  closeFocus.addEventListener('click', () => {
-    focusOverlay.style.display = 'none';
-  });
 
     closeFocus.addEventListener('click', () => {
       focusOverlay.style.display = 'none';
@@ -940,48 +524,14 @@ focusBtn.addEventListener('click', () => {
     }
 
     // INIT
+    let flashcards = [];
     loadProgress();
-    deck = [...flashcards];
-    updateCard();
+    async function init() {
+      flashcards = await loadFlashcards();
+      deck = [...flashcards];
+      updateCard();
+    }
+    init();
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
