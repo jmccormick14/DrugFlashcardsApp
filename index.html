@@ -799,13 +799,14 @@ const flashcards = [
     });
 
     incorrectBtn.addEventListener('click', () => {
+      setTimeout(() => nextBtn.click(), 600);
       const cardId = deck[currentIndex].id;
       missedSet.add(cardId);    // Mark as missed
       masteredSet.delete(cardId); // Remove from mastered if present
       saveProgress();
       showToast("Marked Wrong", "#c0392b");
       updateStats();  // Refresh stats immediately
-      nextBtn.click();
+      
     });
 
     // SHUFFLE
@@ -945,6 +946,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
