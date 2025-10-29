@@ -764,7 +764,16 @@ const flashcards = [
     }
 
     prevBtn.addEventListener('click', () => { if (currentIndex > 0) goTo(currentIndex - 1); });
-    nextBtn.addEventListener('click', () => { if (currentIndex < deck.length - 1) goTo(currentIndex + 1); });
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < deck.length - 1) {
+        if (card.classList.contains('flipped')) {
+          card.classList.remove('flipped');
+          setTimeout(() => goTo(currentIndex + 1), 600);  // Wait for flip animation (matches transition time)
+        } else {
+          goTo(currentIndex + 1);
+        }
+      }
+    });
     card.addEventListener('click', () => card.classList.toggle('flipped'));
 
     // MARK CORRECT / INCORRECT
@@ -894,13 +903,13 @@ focusBtn.addEventListener('click', () => {
       if (confirm('Reset all progress?')) {
         missedSet.clear();
         masteredSet.clear();
+        updateStats():
         saveProgress();
         deck = [...flashcards];
         currentIndex = 0;
         isReviewMode = false;
         isFocusMode = false;
         mainDeckIndex = 0;
-        updateCard();
       }
     });
 
@@ -923,6 +932,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
