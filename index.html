@@ -365,7 +365,8 @@ const flashcards = [
     let focusDrug = null;
     let missedIndices = new Set();
     let mainDeckIndex = 0;
-
+    let isFocusMode = false;  
+    let focusDrug = null;
     // DOM Elements
     const card = document.getElementById('flashcard');
     const questionEl = document.getElementById('question');
@@ -469,27 +470,51 @@ const flashcards = [
     });
 
     // FOCUS MODE
-    focusBtn.addEventListener('click', () => {
-      mainDeckIndex = currentIndex;
-      const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
-      drugList.innerHTML = '';
-      drugs.forEach(drug => {
-        const item = document.createElement('div');
-        item.className = 'drug-item';
-        item.textContent = drug;
-        item.onclick = () => {
-          focusDrug = drug;
-          deck = flashcards.filter(c => c.drug === drug);
-          currentIndex = 0;
-          isFocusMode = true;
-          isReviewMode = false;
-          focusOverlay.style.display = 'none';
-          updateCard();
-        };
-        drugList.appendChild(item);
-      });
-      focusOverlay.style.display = 'flex';
+focusBtn.addEventListener('click', () => {
+    mainDeckIndex = currentIndex;
+    const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
+
+    drugList.innerHTML = '';
+
+    // === "None" Option ===
+    const noneItem = document.createElement('div');
+    noneItem.className = 'drug-item';
+    noneItem.textContent = 'None (All Cards)';
+    noneItem.style.fontWeight = 'bold';
+    noneItem.style.background = '#95a5a6';
+    noneItem.onclick = () => {
+      deck = [...flashcards];
+      currentIndex = mainDeckIndex;
+      isFocusMode = false;
+      isReviewMode = false;
+      focusOverlay.style.display = 'none';
+      updateCard();
+    };
+    drugList.appendChild(noneItem);
+
+    // === Drug List ===
+    drugs.forEach(drug => {
+      const item = document.createElement('div');
+      item.className = 'drug-item';
+      item.textContent = drug;
+      item.onclick = () => {
+        focusDrug = drug;
+        deck = flashcards.filter(c => c.drug === drug);
+        currentIndex = 0;
+        isFocusMode = true;
+        isReviewMode = false;
+        focusOverlay.style.display = 'none';
+        updateCard();
+      };
+      drugList.appendChild(item);
     });
+
+    focusOverlay.style.display = 'flex';
+  });
+
+  closeFocus.addEventListener('click', () => {
+    focusOverlay.style.display = 'none';
+  });
 
     closeFocus.addEventListener('click', () => {
       focusOverlay.style.display = 'none';
@@ -537,6 +562,7 @@ const flashcards = [
   </script>
 </body>
 </html>
+
 
 
 
