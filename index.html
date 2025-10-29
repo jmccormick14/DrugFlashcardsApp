@@ -482,22 +482,32 @@ const flashcards = [
       card.classList.toggle('flipped');
     });
 
-    // Mark correct/incorrect – FIXED
+   // Mark correct/incorrect – FIXED FOREVER
     correctBtn.addEventListener('click', () => {
       missedIndices.delete(currentIndex);
       saveProgress();
-      card.classList.remove('flipped');               // force front side
+    
+      // 1. Start un-flipping
+      card.classList.remove('flipped');
+    
+      // 2. After animation, go to next card
       setTimeout(() => {
-        if (currentIndex < deck.length - 1) nextBtn.click();
-      }, 650);                                        // wait for full 0.6 s animation + tiny buffer
+        if (currentIndex < deck.length - 1) {
+          goTo(currentIndex + 1);  // <-- Direct navigation
+        }
+      }, 650); // 600ms animation + 50ms buffer
     });
     
     incorrectBtn.addEventListener('click', () => {
       missedIndices.add(currentIndex);
       saveProgress();
+    
       card.classList.remove('flipped');
+    
       setTimeout(() => {
-        if (currentIndex < deck.length - 1) nextBtn.click();
+        if (currentIndex < deck.length - 1) {
+          goTo(currentIndex + 1);  // <-- Direct navigation
+        }
       }, 650);
     });
 
@@ -552,5 +562,6 @@ const flashcards = [
 </body>
 
 </html>
+
 
 
