@@ -819,7 +819,23 @@ focusBtn.addEventListener('click', () => {
     const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
 
     drugList.innerHTML = '';
-
+    // === Summaries Only Option ===
+    const summariesItem = document.createElement('div');
+    summariesItem.className = 'drug-item';
+    summariesItem.textContent = 'Summaries Only';
+    summariesItem.style.fontWeight = 'bold';
+    summariesItem.style.background = '#27ae60';  // Green to distinguish
+    summariesItem.onclick = () => {
+      focusDrug = 'Summaries';
+      deck = flashcards.filter(c => !c.question.startsWith('What'));
+      currentIndex = 0;
+      isFocusMode = true;
+      isReviewMode = false;
+      focusOverlay.style.display = 'none';
+      updateCard();
+    };
+    drugList.appendChild(summariesItem);
+  
     // === "None" Option ===
     const noneItem = document.createElement('div');
     noneItem.className = 'drug-item';
@@ -906,6 +922,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
