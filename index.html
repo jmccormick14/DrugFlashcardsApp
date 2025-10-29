@@ -482,19 +482,23 @@ const flashcards = [
       card.classList.toggle('flipped');
     });
 
-    // Mark correct/incorrect
+    // Mark correct/incorrect – FIXED
     correctBtn.addEventListener('click', () => {
       missedIndices.delete(currentIndex);
       saveProgress();
-      card.classList.remove('flipped'); // Unflip first
-      setTimeout(() => nextBtn.click(), 300); // Small delay for smooth flip
+      card.classList.remove('flipped');               // force front side
+      setTimeout(() => {
+        if (currentIndex < deck.length - 1) nextBtn.click();
+      }, 650);                                        // wait for full 0.6 s animation + tiny buffer
     });
     
     incorrectBtn.addEventListener('click', () => {
       missedIndices.add(currentIndex);
       saveProgress();
-      card.classList.remove('flipped'); // Unflip first
-      setTimeout(() => nextBtn.click(), 300); // Small delay for smooth flip
+      card.classList.remove('flipped');
+      setTimeout(() => {
+        if (currentIndex < deck.length - 1) nextBtn.click();
+      }, 650);
     });
 
     // Shuffle
@@ -548,4 +552,5 @@ const flashcards = [
 </body>
 
 </html>
+
 
