@@ -2,7 +2,8 @@
   "name": "Drug Flashcards",
   "short_name": "IV Drugs",
   "description": "Interactive flashcards for 225 drug questions",
-  "start_url": "/",
+  "start_url": "./",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#f4f7fa",
   "theme_color": "#3498db",
@@ -33,4 +34,5 @@
       "type": "image/png"
     }
   ]
+
 }
