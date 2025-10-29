@@ -4,143 +4,77 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Drug Flashcards</title>
-  <!-- PWA Meta Tags -->
-  <meta name="theme-color" content="#3498db">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Drug Flashcards">
-  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <!-- PWA & Icons -->
   <link rel="manifest" href="manifest.json">
-  <!-- End PWA Meta -->
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" href="favicon.png">
+
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #f4f7fa;
-      color: #333;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      padding: 10px;
-    }
-    .container {
-      max-width: 600px;
-      margin: auto;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 15px;
-    }
-    .progress {
-      font-size: 1.1em;
-      font-weight: bold;
-      color: #2c3e50;
-    }
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 15px;
-    }
-    button {
-      padding: 8px 14px;
-      font-size: 0.9em;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f4f7fa; color: #333; display: flex; flex-direction: column; height: 100vh; padding: 10px; }
+    .container { max-width: 600px; margin: auto; flex: 1; display: flex; flex-direction: column; }
+    .header { text-align: center; margin-bottom: 15px; }
+    .progress { font-size: 1.1em; font-weight: bold; color: #2c3e50; }
+    .stats { font-size: 0.9em; color: #7f8c8d; margin-top: 4px; }
+    .controls { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; }
+    button { padding: 8px 14px; font-size: 0.9em; border: none; border-radius: 6px; cursor: pointer; transition: 0.2s; }
     button:active { transform: scale(0.98); }
     .btn-shuffle { background: #3498db; color: white; }
     .btn-review { background: #e74c3c; color: white; }
     .btn-reset { background: #95a5a6; color: white; }
-    .card-container {
-      perspective: 1000px;
-      flex: 1;
-      margin-bottom: 15px;
-    }
-    .card {
-      width: 100%;
-      height: 100%;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.6s ease-in-out;
-      cursor: pointer;
-      border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
-    }
+    .btn-all { background: #2c3e50; color: white; }
+    .btn-focus { background: #9b59b6; color: white; } /* NEW */
+
+    .card-container { perspective: 1000px; flex: 1; margin-bottom: 15px; }
+    .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s ease-in-out; cursor: pointer; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
     .card.flipped { transform: rotateY(180deg); }
-    .card-front, .card-back {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backface-visibility: hidden;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 20px;
-      border-radius: 12px;
-      text-align: center;
-    }
-    .card-front {
-      background: linear-gradient(135deg, #6ab7ff, #4a90e2);
-      color: white;
-    }
-    .card-back {
-      background: linear-gradient(135deg, #a8e6cf, #66bb6a);
-      color: #1a3d1f;
-      transform: rotateY(180deg);
-    }
-    .drug-name {
-      font-size: 0.9em;
-      font-style: italic;
-      margin-top: 10px;
-      opacity: 0.9;
-    }
+    .card-front, .card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 20px; border-radius: 12px; text-align: center; }
+    .card-front { background: linear-gradient(135deg, #6ab7ff, #4a90e2); color: white; }
+    .card-back { background: linear-gradient(135deg, #a8e6cf, #66bb6a); color: #1a3d1f; transform: rotateY(180deg); }
+
+    .drug-name { font-size: 0.9em; font-style: italic; margin-top: 10px; opacity: 0.9; }
     .question { font-size: 1.3em; font-weight: 600; margin-bottom: 10px; }
     .answer { font-size: 1.1em; line-height: 1.5; }
-    .nav-buttons {
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .nav-btn {
-      flex: 1;
-      padding: 12px;
-      font-size: 1em;
-      background: #34495e;
-      color: white;
-    }
-    .nav-btn:disabled {
-      background: #95a5a6;
-      cursor: not-allowed;
-    }
-    .mark-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .btn-all {
-    background: #2c3e50;
-    color: white;
-    }
+    .nav-buttons { display: flex; justify-content: space-between; gap: 10px; }
+    .nav-btn { flex: 1; padding: 12px; font-size: 1em; background: #34495e; color: white; }
+    .nav-btn:disabled { background: #95a5a6; cursor: not-allowed; }
+    .mark-buttons { display: flex; gap: 10px; margin-top: 10px; }
     .btn-correct { background: #27ae60; color: white; }
     .btn-incorrect { background: #c0392b; color: white; }
-    .footer {
-      text-align: center;
-      font-size: 0.8em;
-      color: #7f8c8d;
-      margin-top: 10px;
+    .footer { text-align: center; font-size: 0.8em; color: #7f8c8d; margin-top: 10px; }
+
+    /* Focus Mode Overlay */
+    #focusOverlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+      display: none; justify-content: center; align-items: center; z-index: 1000;
     }
+    #focusPanel {
+      background: white; padding: 20px; border-radius: 12px; max-width: 90%; max-height: 80%; overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    #focusPanel h3 { margin-bottom: 15px; text-align: center; color: #2c3e50; }
+    .drug-list { display: flex; flex-direction: column; gap: 8px; }
+    .drug-item {
+      padding: 12px; background: #ecf0f1; border-radius: 8px; cursor: pointer; transition: 0.2s;
+      text-align: center; font-weight: 500;
+    }
+    .drug-item:hover { background: #3498db; color: white; }
+    #closeFocus { margin-top: 15px; background: #95a5a6; width: 100%; }
+
     @media (max-width: 480px) {
       .question { font-size: 1.1em; }
       .answer { font-size: 1em; }
       button { font-size: 0.8em; padding: 6px 10px; }
+    }
+
+    @keyframes fadeInOut {
+      0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+      15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+      85%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
     }
   </style>
 </head>
@@ -148,51 +82,54 @@
   <div class="container">
     <div class="header">
       <div class="progress" id="progress">1 of 225</div>
+      <div class="stats" id="stats">Mastered: 0 / 225 (0%)</div>
     </div>
 
     <div class="controls">
       <button id="shuffleBtn" class="btn-shuffle">Shuffle</button>
       <button id="reviewBtn" class="btn-review">Review Missed</button>
+      <button id="focusBtn" class="btn-focus">Focus Mode</button>
       <button id="resetBtn" class="btn-reset">Reset Progress</button>
       <button id="allCardsBtn" class="btn-all" style="display:none;">Back to All Cards</button>
     </div>
 
     <div class="card-container">
       <div class="card" id="flashcard">
-        <div class="card-front">
-          <div class="question" id="question">Tap to reveal answer</div>
-        </div>
+        <div class="card-front"><div class="question" id="question">Tap to reveal answer</div></div>
         <div class="card-back">
           <div class="answer" id="answer"></div>
           <div class="drug-name" id="drugBack"></div>
           <div class="mark-buttons">
-            <button class="btn-correct" id="correctBtn">✓ Correct</button>
-            <button class="btn-incorrect" id="incorrectBtn">✗ Incorrect</button>
+            <button class="btn-correct" id="correctBtn">Correct</button>
+            <button class="btn-incorrect" id="incorrectBtn">Incorrect</button>
           </div>
         </div>
       </div>
     </div>
 
     <div class="nav-buttons">
-      <button id="prevBtn" class="nav-btn">← Previous</button>
-      <button id="nextBtn" class="nav-btn">Next →</button>
+      <button id="prevBtn" class="nav-btn">Previous</button>
+      <button id="nextBtn" class="nav-btn">Next</button>
     </div>
 
-    <div class="footer">
-      <span id="modeText">All Cards</span>
+    <div class="footer"><span id="modeText">All Cards</span></div>
+  </div>
+
+  <!-- Focus Mode Overlay -->
+  <div id="focusOverlay">
+    <div id="focusPanel">
+      <h3>Select a Drug to Focus On</h3>
+      <div class="drug-list" id="drugList"></div>
+      <button id="closeFocus" class="nav-btn">Close</button>
     </div>
   </div>
 
   <script>
-    // Register Service Worker for PWA (offline support)
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => console.log('SW registered'))
-          .catch(err => console.log('SW registration failed'));
+        navigator.serviceWorker.register('/sw.js');
       });
     }
-
     // === ALL 225 FLASHCARDS DATA ===
 const flashcards = [
       { drug: "daptomycin", question: "What is the Brand name for daptomycin?", answer: "Cubicin" },
@@ -421,135 +358,90 @@ const flashcards = [
       { drug: "Lab Tube Draw Order", question: "What are the side effects of Lab Tube Draw Order?", answer: "N/A" }
     ];
 
-    // State
-    let currentIndex = 0;
+   let currentIndex = 0;
     let deck = [...flashcards];
     let isReviewMode = false;
+    let isFocusMode = false;
+    let focusDrug = null;
     let missedIndices = new Set();
     let mainDeckIndex = 0;
-    
+
     // DOM Elements
     const card = document.getElementById('flashcard');
     const questionEl = document.getElementById('question');
     const answerEl = document.getElementById('answer');
     const drugBackEl = document.getElementById('drugBack');
     const progressEl = document.getElementById('progress');
+    const statsEl = document.getElementById('stats');
     const modeText = document.getElementById('modeText');
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const shuffleBtn = document.getElementById('shuffleBtn');
     const reviewBtn = document.getElementById('reviewBtn');
+    const focusBtn = document.getElementById('focusBtn');
     const resetBtn = document.getElementById('resetBtn');
     const allCardsBtn = document.getElementById('allCardsBtn');
     const correctBtn = document.getElementById('correctBtn');
     const incorrectBtn = document.getElementById('incorrectBtn');
-   
-    
-    // Load progress
+    const focusOverlay = document.getElementById('focusOverlay');
+    const drugList = document.getElementById('drugList');
+    const closeFocus = document.getElementById('closeFocus');
+
     function loadProgress() {
       const saved = localStorage.getItem('flashcardMissed');
       if (saved) missedIndices = new Set(JSON.parse(saved));
     }
-
-    // Save progress
     function saveProgress() {
       localStorage.setItem('flashcardMissed', JSON.stringify([...missedIndices]));
     }
 
-    // Update display
-    function updateCard() {
-      const cardData = deck[currentIndex];
-      questionEl.textContent = cardData.question;
-      answerEl.textContent = cardData.answer;
-      drugBackEl.textContent = cardData.drug;
-      progressEl.textContent = `${currentIndex + 1} of ${deck.length}`;
-      modeText.textContent = isReviewMode ? `Review Missed (${deck.length})` : 'All Cards';
+    function updateStats() {
+      const total = flashcards.length;
+      const mastered = total - missedIndices.size;
+      const percent = Math.round((mastered / total) * 100);
+      statsEl.textContent = `Mastered: ${mastered} / ${total} (${percent}%)`;
+    }
 
+    function updateCard() {
+      const c = deck[currentIndex];
+      questionEl.textContent = c.question;
+      answerEl.textContent = c.answer;
+      drugBackEl.textContent = c.drug;
+      progressEl.textContent = `${currentIndex + 1} of ${deck.length}`;
+      modeText.textContent = isFocusMode ? `Focus: ${focusDrug}` : (isReviewMode ? `Review Missed (${deck.length})` : 'All Cards');
       prevBtn.disabled = currentIndex === 0;
       nextBtn.disabled = currentIndex === deck.length - 1;
-      
-      allCardsBtn.style.display = isReviewMode ? 'inline-block' : 'none';
-      reviewBtn.style.display = isReviewMode ? 'none' : 'inline-block';
-
       card.classList.remove('flipped');
+      updateStats();
+
+      allCardsBtn.style.display = isReviewMode || isFocusMode ? 'inline-block' : 'none';
+      reviewBtn.style.display = (isReviewMode || isFocusMode) ? 'none' : 'inline-block';
+      focusBtn.style.display = (isReviewMode || isFocusMode) ? 'none' : 'inline-block';
     }
-    
-    // Toast notification
-    function showToast(message, bgColor) {
-      // Remove any existing toast
-      const existing = document.getElementById('toast');
-      if (existing) existing.remove();
-    
-      const toast = document.createElement('div');
-      toast.id = 'toast';
-      toast.textContent = message;
-      toast.style.cssText = `
-        position: fixed;
-        bottom: 100px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: ${bgColor};
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: bold;
-        font-size: 1em;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        animation: fadeInOut 2s ease-out forwards;
-      `;
-    
-      document.body.appendChild(toast);
-    
-      // Auto-remove after animation
-      setTimeout(() => toast.remove(), 2000);
-    }
-    
-    // Add fade animation
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes fadeInOut {
-        0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
-        15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-        85%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-        100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
-      }
-    `;
-    document.head.appendChild(style);
-        
-    // Navigation
-    function goTo(index) {
-      currentIndex = index;
+
+    function goTo(idx) {
+      currentIndex = idx;
       updateCard();
     }
 
-    prevBtn.addEventListener('click', () => {
-      if (currentIndex > 0) goTo(currentIndex - 1);
+    prevBtn.addEventListener('click', () => { if (currentIndex > 0) goTo(currentIndex - 1); });
+    nextBtn.addEventListener('click', () => { if (currentIndex < deck.length - 1) goTo(currentIndex + 1); });
+    card.addEventListener('click', () => card.classList.toggle('flipped'));
+
+    // MARK CORRECT / INCORRECT
+    correctBtn.addEventListener('click', () => {
+      missedIndices.delete(currentIndex);
+      saveProgress();
+      showToast("Marked Correct", "#27ae60");
     });
 
-    nextBtn.addEventListener('click', () => {
-      if (currentIndex < deck.length - 1) goTo(currentIndex + 1);
+    incorrectBtn.addEventListener('click', () => {
+      missedIndices.add(currentIndex);
+      saveProgress();
+      showToast("Marked Wrong", "#c0392b");
     });
 
-    // Flip card
-    card.addEventListener('click', () => {
-      card.classList.toggle('flipped');
-    });
-
-   // Mark correct/incorrect – FIXED FOREVER
-correctBtn.addEventListener('click', () => {
-  missedIndices.delete(currentIndex);
-  saveProgress();
-  showToast("Marked Correct", "#27ae60");
-});
-
-incorrectBtn.addEventListener('click', () => {
-  missedIndices.add(currentIndex);
-  saveProgress();
-  showToast("Marked Wrong", "#c0392b");
-});
-    
-    // Shuffle
+    // SHUFFLE
     shuffleBtn.addEventListener('click', () => {
       deck = [...flashcards];
       for (let i = deck.length - 1; i > 0; i--) {
@@ -558,10 +450,11 @@ incorrectBtn.addEventListener('click', () => {
       }
       currentIndex = 0;
       isReviewMode = false;
+      isFocusMode = false;
       updateCard();
     });
 
-    // Review missed
+    // REVIEW MISSED
     reviewBtn.addEventListener('click', () => {
       if (missedIndices.size === 0) {
         alert('No missed cards to review!');
@@ -571,48 +464,80 @@ incorrectBtn.addEventListener('click', () => {
       deck = [...missedIndices].map(i => flashcards[i]);
       currentIndex = 0;
       isReviewMode = true;
+      isFocusMode = false;
       updateCard();
-      allCardsBtn.style.display = 'inline-block';  // Show "Back to All"
-      reviewBtn.style.display = 'none';            // Hide "Review Missed"
     });
-    // NEW: Back to All Cards
-    
+
+    // FOCUS MODE
+    focusBtn.addEventListener('click', () => {
+      mainDeckIndex = currentIndex;
+      const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
+      drugList.innerHTML = '';
+      drugs.forEach(drug => {
+        const item = document.createElement('div');
+        item.className = 'drug-item';
+        item.textContent = drug;
+        item.onclick = () => {
+          focusDrug = drug;
+          deck = flashcards.filter(c => c.drug === drug);
+          currentIndex = 0;
+          isFocusMode = true;
+          isReviewMode = false;
+          focusOverlay.style.display = 'none';
+          updateCard();
+        };
+        drugList.appendChild(item);
+      });
+      focusOverlay.style.display = 'flex';
+    });
+
+    closeFocus.addEventListener('click', () => {
+      focusOverlay.style.display = 'none';
+    });
+
+    // BACK TO ALL CARDS
     allCardsBtn.addEventListener('click', () => {
       deck = [...flashcards];
       currentIndex = mainDeckIndex;
       isReviewMode = false;
+      isFocusMode = false;
       updateCard();
-      allCardsBtn.style.display = 'none';
-      reviewBtn.style.display = 'inline-block';
     });
 
-    // Reset
+    // RESET
     resetBtn.addEventListener('click', () => {
-      if (confirm("Reset all progress? This will clear all missed cards.")) {
+      if (confirm('Reset all progress?')) {
         missedIndices.clear();
         saveProgress();
         deck = [...flashcards];
         currentIndex = 0;
         isReviewMode = false;
+        isFocusMode = false;
+        mainDeckIndex = 0;
         updateCard();
       }
     });
 
-    // Keyboard support (for desktop/tablet)
-    document.addEventListener('keydown', e => {
-      if (e.key === 'ArrowLeft') prevBtn.click();
-      if (e.key === 'ArrowRight') nextBtn.click();
-      if (e.key === ' ') card.click();
-    });
+    // TOAST
+    function showToast(message, bgColor) {
+      const existing = document.getElementById('toast');
+      if (existing) existing.remove();
+      const toast = document.createElement('div');
+      toast.id = 'toast';
+      toast.textContent = message;
+      toast.style.cssText = `position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:${bgColor};color:white;padding:12px 24px;border-radius:8px;font-weight:bold;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,0.2);animation:fadeInOut 2s ease-out forwards;`;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 2000);
+    }
 
-    // Init
+    // INIT
     loadProgress();
     deck = [...flashcards];
     updateCard();
   </script>
 </body>
-
 </html>
+
 
 
 
