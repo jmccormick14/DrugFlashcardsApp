@@ -763,7 +763,7 @@ const flashcards = [
       updateCard();
     }
 
-    prevBtn.addEventListener('click', () => { if (currentIndex > 0) goTo(currentIndex - 1); });
+    prevBtn.addEventListener('click', () => { if (currentIndex > 0) goTo(currentIndex - 1); 
      if (currentIndex < deck.length - 1) {
         if (card.classList.contains('flipped')) {
           card.classList.remove('flipped');
@@ -946,6 +946,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
