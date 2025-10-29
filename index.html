@@ -781,6 +781,7 @@ const flashcards = [
       const cardId = deck[currentIndex].id;
       masteredSet.add(cardId);  // Mark as mastered
       missedSet.delete(cardId); // Remove from missed if present
+      nextBtn.click();
       saveProgress();
       showToast("Marked Correct", "#27ae60");
       updateStats();  // Refresh stats immediately
@@ -795,6 +796,7 @@ const flashcards = [
       const cardId = deck[currentIndex].id;
       missedSet.add(cardId);    // Mark as missed
       masteredSet.delete(cardId); // Remove from mastered if present
+      nextBtn.click();
       saveProgress();
       showToast("Marked Wrong", "#c0392b");
       updateStats();  // Refresh stats immediately
@@ -940,6 +942,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
