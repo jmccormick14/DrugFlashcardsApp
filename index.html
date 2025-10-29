@@ -483,33 +483,27 @@ const flashcards = [
     });
 
    // Mark correct/incorrect – FIXED FOREVER
-       correctBtn.addEventListener('click', () => {
+correctBtn.addEventListener('click', () => {
       missedIndices.delete(currentIndex);
       saveProgress();
-    
-      // 1. start un-flipping
       card.classList.remove('flipped');
-    
-      // 2. wait for the flip animation to finish
       const onFlipDone = () => {
         card.removeEventListener('transitionend', onFlipDone);
         if (currentIndex < deck.length - 1) goTo(currentIndex + 1);
       };
       card.addEventListener('transitionend', onFlipDone);
     });
-    
+
     incorrectBtn.addEventListener('click', () => {
       missedIndices.add(currentIndex);
-      saveProgress();
-    
+       saveProgress();
       card.classList.remove('flipped');
-    
       const onFlipDone = () => {
         card.removeEventListener('transitionend', onFlipDone);
         if (currentIndex < deck.length - 1) goTo(currentIndex + 1);
       };
-      card.addEventListener('transitionend', onFlipDone);
-    });
+     card.addEventListener('transitionend', onFlipDone);
+   });
     
     // Shuffle
     shuffleBtn.addEventListener('click', () => {
@@ -562,6 +556,7 @@ const flashcards = [
 </body>
 
 </html>
+
 
 
 
