@@ -763,15 +763,15 @@ const flashcards = [
       updateCard();
     }
 
-    prevBtn.addEventListener('click', () => { if (currentIndex > 0) goTo(currentIndex - 1); 
-     
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0)  {
         if (card.classList.contains('flipped')) {
           card.classList.remove('flipped');
           setTimeout(() => goTo(currentIndex - 1), 600);  // Wait for flip animation (matches transition time)
         } else {
           goTo(currentIndex - 1);
         }
-      
+      }
     });
     nextBtn.addEventListener('click', () => {
       if (currentIndex < deck.length - 1) {
@@ -788,11 +788,9 @@ const flashcards = [
     // MARK CORRECT / INCORRECT
     correctBtn.addEventListener('click', () => {
       setTimeout(() => nextBtn.click(), 600);
-      card.classList.toggle('flipped');
       const cardId = deck[currentIndex].id;
       masteredSet.add(cardId);  // Mark as mastered
       missedSet.delete(cardId); // Remove from missed if present
-      nextBtn.click();
       saveProgress();
       showToast("Marked Correct", "#27ae60");
       updateStats();  // Refresh stats immediately
@@ -947,6 +945,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
