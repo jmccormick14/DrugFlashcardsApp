@@ -1,9 +1,14 @@
 const CACHE_NAME = 'drug-flashcards-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json'
-  // Add more if you have assets (e.g., icons)
+  './',                    // Current folder (DrugFlashcardsApp/)
+  './index.html',
+  './manifest.json',
+  './android-chrome-192x192.png',
+  './android-chrome-512x512.png',
+  './apple-touch-icon.png',
+  './favicon.png',
+  './favicon-16x16.png',
+  './favicon-32x32.png'
 ];
 
 self.addEventListener('install', event => {
@@ -18,4 +23,5 @@ self.addEventListener('fetch', event => {
     caches.match(event.request)
       .then(response => response || fetch(event.request))
   );
+
 });
