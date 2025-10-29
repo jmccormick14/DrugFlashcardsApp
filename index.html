@@ -784,6 +784,16 @@ const flashcards = [
       saveProgress();
       showToast("Marked Correct", "#27ae60");
       updateStats();  // Refresh stats immediately
+      
+        // Auto-advance to next (with flip-back if needed)
+      if (currentIndex < deck.length - 1) {
+        if (card.classList.contains('flipped')) {
+          card.classList.remove('flipped');
+          setTimeout(() => goTo(currentIndex + 1), 600);  // Wait for animation
+        } else {
+          goTo(currentIndex + 1);
+        }
+      }
     });
 
     incorrectBtn.addEventListener('click', () => {
@@ -793,7 +803,16 @@ const flashcards = [
       saveProgress();
       showToast("Marked Wrong", "#c0392b");
       updateStats();  // Refresh stats immediately
-    });
+     // Auto-advance to next (with flip-back if needed)
+        if (currentIndex < deck.length - 1) {
+          if (card.classList.contains('flipped')) {
+            card.classList.remove('flipped');
+            setTimeout(() => goTo(currentIndex + 1), 600);  // Wait for animation
+          } else {
+            goTo(currentIndex + 1);
+          }
+        }
+      });
 
     // SHUFFLE
     shuffleBtn.addEventListener('click', () => {
@@ -931,6 +950,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
