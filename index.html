@@ -125,6 +125,10 @@
       gap: 10px;
       margin-top: 10px;
     }
+    .btn-all {
+    background: #2c3e50;
+    color: white;
+    }
     .btn-correct { background: #27ae60; color: white; }
     .btn-incorrect { background: #c0392b; color: white; }
     .footer {
@@ -150,6 +154,7 @@
       <button id="shuffleBtn" class="btn-shuffle">Shuffle</button>
       <button id="reviewBtn" class="btn-review">Review Missed</button>
       <button id="resetBtn" class="btn-reset">Reset Progress</button>
+      <button id="allCardsBtn" class="btn-all" style="display:none;">Back to All Cards</button>
     </div>
 
     <div class="card-container">
@@ -436,7 +441,8 @@ const flashcards = [
     const resetBtn = document.getElementById('resetBtn');
     const correctBtn = document.getElementById('correctBtn');
     const incorrectBtn = document.getElementById('incorrectBtn');
-
+    const allCardsBtn = document.getElementById('allCardsBtn');
+    
     // Load progress
     function loadProgress() {
       const saved = localStorage.getItem('flashcardMissed');
@@ -459,6 +465,9 @@ const flashcards = [
 
       prevBtn.disabled = currentIndex === 0;
       nextBtn.disabled = currentIndex === deck.length - 1;
+      
+      allCardsBtn.style.display = isReviewMode ? 'inline-block' : 'none';
+      reviewBtn.style.display = isReviewMode ? 'none' : 'inline-block';
 
       card.classList.remove('flipped');
     }
@@ -553,13 +562,25 @@ incorrectBtn.addEventListener('click', () => {
     // Review missed
     reviewBtn.addEventListener('click', () => {
       if (missedIndices.size === 0) {
-        alert("No missed cards to review!");
+        alert('No missed cards to review!');
         return;
       }
       deck = [...missedIndices].map(i => flashcards[i]);
       currentIndex = 0;
       isReviewMode = true;
       updateCard();
+      allCardsBtn.style.display = 'inline-block';  // Show "Back to All"
+      reviewBtn.style.display = 'none';            // Hide "Review Missed"
+    });
+    // NEW: Back to All Cards
+    
+    allCardsBtn.addEventListener('click', () => {
+      deck = [...flashcards];
+      currentIndex = 0;
+      isReviewMode = false;
+      updateCard();
+      allCardsBtn.style.display = 'none';
+      reviewBtn.style.display = 'inline-block';
     });
 
     // Reset
@@ -589,6 +610,7 @@ incorrectBtn.addEventListener('click', () => {
 </body>
 
 </html>
+
 
 
 
