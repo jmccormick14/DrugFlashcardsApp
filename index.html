@@ -483,19 +483,19 @@ const flashcards = [
     });
 
    // Mark correct/incorrect – FIXED FOREVER
-    correctBtn.addEventListener('click', () => {
+       correctBtn.addEventListener('click', () => {
       missedIndices.delete(currentIndex);
       saveProgress();
     
-      // 1. Start un-flipping
+      // 1. start un-flipping
       card.classList.remove('flipped');
     
-      // 2. After animation, go to next card
-      setTimeout(() => {
-        if (currentIndex < deck.length - 1) {
-          goTo(currentIndex + 1);  // <-- Direct navigation
-        }
-      }, 0); // 600ms animation + 50ms buffer
+      // 2. wait for the flip animation to finish
+      const onFlipDone = () => {
+        card.removeEventListener('transitionend', onFlipDone);
+        if (currentIndex < deck.length - 1) goTo(currentIndex + 1);
+      };
+      card.addEventListener('transitionend', onFlipDone);
     });
     
     incorrectBtn.addEventListener('click', () => {
@@ -504,13 +504,13 @@ const flashcards = [
     
       card.classList.remove('flipped');
     
-      setTimeout(() => {
-        if (currentIndex < deck.length - 1) {
-          goTo(currentIndex + 1);  // <-- Direct navigation
-        }
-      }, 0);
+      const onFlipDone = () => {
+        card.removeEventListener('transitionend', onFlipDone);
+        if (currentIndex < deck.length - 1) goTo(currentIndex + 1);
+      };
+      card.addEventListener('transitionend', onFlipDone);
     });
-
+    
     // Shuffle
     shuffleBtn.addEventListener('click', () => {
       deck = [...flashcards];
@@ -562,6 +562,7 @@ const flashcards = [
 </body>
 
 </html>
+
 
 
 
