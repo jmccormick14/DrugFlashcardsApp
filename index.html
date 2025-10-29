@@ -785,14 +785,9 @@ const flashcards = [
       showToast("Marked Correct", "#27ae60");
       updateStats();  // Refresh stats immediately
       
-        // Auto-advance to next (with flip-back if needed)
+         // Trigger next button if not last card
       if (currentIndex < deck.length - 1) {
-        if (card.classList.contains('flipped')) {
-          card.classList.remove('flipped');
-          setTimeout(() => goTo(currentIndex + 1), 600);  // Wait for animation
-        } else {
-          goTo(currentIndex + 1);
-        }
+        nextBtn.click();
       }
     });
 
@@ -803,16 +798,11 @@ const flashcards = [
       saveProgress();
       showToast("Marked Wrong", "#c0392b");
       updateStats();  // Refresh stats immediately
-     // Auto-advance to next (with flip-back if needed)
-        if (currentIndex < deck.length - 1) {
-          if (card.classList.contains('flipped')) {
-            card.classList.remove('flipped');
-            setTimeout(() => goTo(currentIndex + 1), 600);  // Wait for animation
-          } else {
-            goTo(currentIndex + 1);
-          }
-        }
-      });
+        // Trigger next button if not last card
+      if (currentIndex < deck.length - 1) {
+        nextBtn.click();
+      }
+    });
 
     // SHUFFLE
     shuffleBtn.addEventListener('click', () => {
@@ -950,6 +940,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
