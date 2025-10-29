@@ -163,6 +163,18 @@ const flashcards = [
       { drug: "vedolizumab", question: "What is the route/admin for vedolizumab Entyvio?", answer: "IV infusion over 30 minutes. Flush with 30mL NS after. Weeks 0, 2, 6, then every 8 weeks thereafter" },
       { drug: "vedolizumab", question: "What observation is required for vedolizumab Entyvio?", answer: "NONE" },
       { drug: "vedolizumab", question: "What are the side effects of vedolizumab Entyvio?", answer: "Cold symptoms, fever, cough, nausea; Joint pain, back pain, extremity pain, headache; Rash, itching, sore throat; Sinus infection; Flu" },
+       {
+        drug: "vedolizumab",
+        question: "Vedolizumab(Entyvio)",
+        answer: `
+          <strong>Indications:</strong> Bacteremia, skin infections<br>
+          <strong>Pre Meds:</strong> NONE<br>
+          <strong>Assessment:</strong> VS upon arrival<br>
+          <strong>Route/Admin:</strong> IV push over 2 minutes (can be infused over 30 minutes)<br>
+          <strong>Observation:</strong> NONE<br>
+          <strong>Side Effects:</strong> Swelling in face, arms, hands, legs, feet; Fever, chills, weakness; Tingling in hands or feet, sweating; Cough, SOB, dizziness, fainting, lightheadedness; Increased HR, BP, headache; Rash, itching, pale skin
+        `.trim()
+      },
       { drug: "pegunigalsidase alfa", question: "What is the Brand name for pegunigalsidase alfa?", answer: "Elfabrio" },
       { drug: "pegunigalsidase alfa", question: "What are the indications for pegunigalsidase alfa Elfabrio?", answer: "Fabry Disease" },
       { drug: "pegunigalsidase alfa", question: "What are the Pre Meds for pegunigalsidase alfa Elfabrio?", answer: "Tylenol & Benadryl" },
@@ -372,13 +384,16 @@ const flashcards = [
       { drug: "Lab Tube Draw Order", question: "What observation is required for Lab Tube Draw Order?", answer: "N/A" },
       { drug: "Lab Tube Draw Order", question: "What are the side effects of Lab Tube Draw Order?", answer: "N/A" }
     ];
-
-   let currentIndex = 0;
+    flashcards.forEach((card, index) => {
+      card.id = index;
+    });
+    
+    let currentIndex = 0;
     let deck = [...flashcards];
     let isReviewMode = false;
     let isFocusMode = false;
     let focusDrug = null;
-    let missedIndices = new Set();
+    let missedSet = new Set();
     let mainDeckIndex = 0;
 
     // DOM Elements
@@ -403,16 +418,19 @@ const flashcards = [
     const closeFocus = document.getElementById('closeFocus');
 
     function loadProgress() {
-      const saved = localStorage.getItem('flashcardMissed');
-      if (saved) missedIndices = new Set(JSON.parse(saved));
+      const savedMissed = localStorage.getItem('flashcardMissed');
+      const savedMastered = localStorage.getItem('flashcardMastered');
+      if (savedMissed) missedSet = new Set(JSON.parse(savedMissed));
+      if (savedMastered) masteredSet = new Set(JSON.parse(savedMastered));
     }
     function saveProgress() {
-      localStorage.setItem('flashcardMissed', JSON.stringify([...missedIndices]));
+      localStorage.setItem('flashcardMissed', JSON.stringify([...missedSet]));
+      localStorage.setItem('flashcardMastered', JSON.stringify([...masteredSet]));
     }
 
     function updateStats() {
       const total = flashcards.length;
-      const mastered = total - missedIndices.size;
+      const mastered = masteredSet.size;  // Only count explicitly marked correct
       const percent = Math.round((mastered / total) * 100);
       statsEl.textContent = `Mastered: ${mastered} / ${total} (${percent}%)`;
     }
@@ -445,15 +463,21 @@ const flashcards = [
 
     // MARK CORRECT / INCORRECT
     correctBtn.addEventListener('click', () => {
-      missedIndices.delete(currentIndex);
+      const cardId = deck[currentIndex].id;
+      masteredSet.add(cardId);  // Mark as mastered
+      missedSet.delete(cardId); // Remove from missed if present
       saveProgress();
       showToast("Marked Correct", "#27ae60");
+      updateStats();  // Refresh stats immediately
     });
 
     incorrectBtn.addEventListener('click', () => {
-      missedIndices.add(currentIndex);
+      const cardId = deck[currentIndex].id;
+      missedSet.add(cardId);    // Mark as missed
+      masteredSet.delete(cardId); // Remove from mastered if present
       saveProgress();
       showToast("Marked Wrong", "#c0392b");
+      updateStats();  // Refresh stats immediately
     });
 
     // SHUFFLE
@@ -471,12 +495,12 @@ const flashcards = [
 
     // REVIEW MISSED
     reviewBtn.addEventListener('click', () => {
-      if (missedIndices.size === 0) {
+      if (missedSet.size === 0) {
         alert('No missed cards to review!');
         return;
       }
       mainDeckIndex = currentIndex;
-      deck = [...missedIndices].map(i => flashcards[i]);
+      deck = [...missedSet].map(i => flashcards[i]);
       currentIndex = 0;
       isReviewMode = true;
       isFocusMode = false;
@@ -546,7 +570,7 @@ focusBtn.addEventListener('click', () => {
     // RESET
     resetBtn.addEventListener('click', () => {
       if (confirm('Reset all progress?')) {
-        missedIndices.clear();
+        missedSet.clear();
         saveProgress();
         deck = [...flashcards];
         currentIndex = 0;
@@ -576,6 +600,7 @@ focusBtn.addEventListener('click', () => {
   </script>
 </body>
 </html>
+
 
 
 
