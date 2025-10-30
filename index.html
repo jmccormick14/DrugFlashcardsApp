@@ -613,6 +613,15 @@
       });
     
       workOverlay.style.display = 'flex';
+
+      closeWork.addEventListener('click', () => {
+      workOverlay.style.display = 'none';
+    });
+
+      closeSummary.addEventListener('click', () => {
+      summaryModal.style.display = 'none';
+    });
+      
     });
     
     // TOAST
@@ -639,6 +648,7 @@
   </script>
 </body>
 </html>
+
 
 
 
