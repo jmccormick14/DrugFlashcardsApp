@@ -348,41 +348,60 @@
     // === REFRESH LOGIC ===
     async function loadFlashcards() {
       const lastFetch = await getMetadata('lastFetch');
-      const storedVersion = await getMetadata('version') || '0.0';
+      const storedVersion = (await getMetadata('version')) || '0.0';
       const now = Date.now();
       let flashcards = await getAllFromStore(STORE_FLASHCARDS);
-    
+      
+      // If no cached data or we're past refresh interval, try to fetch
       if (!flashcards.length || !lastFetch || (now - lastFetch > REFRESH_INTERVAL_MS)) {
         const freshData = await fetchFromGoogleSheet();
         if (freshData) {
           const { flashcards: newCards, version: newVersion } = freshData;
-          if (newVersion !== storedVersion) {
-            // Force clear and refresh if version changed
-            await clearStore(STORE_FLASHCARDS);
-            showToast('New version detected! Reloading data...', '#f39c12');
-            location.reload(); // Force full app reload to apply changes
-          }
-          flashcards = newCards;
-          await storeFlashcards(flashcards);
-          await setMetadata('lastFetch', now);
-          await setMetadata('version', newVersion);
-          showToast('Data refreshed from Google Sheet!', '#27ae60');
+          
+            // Always store the fetched data (so manual or automated refresh updates the DB)
+            await storeFlashcards(newCards);
+            await setMetadata('lastFetch', now);
+            await setMetadata('version', newVersion);
+          
+            // If version changed, show a message and perform an in-app refresh of state.
+            if (newVersion !== storedVersion) {
+              showToast('New version detected. Updating data...', '#f39c12');
+              flashcards = newCards;
+              deck = [...flashcards];
+              currentIndex = 0;
+              updateCard();
+              // If you truly need a full reload (only if other modules need JS re-init), call:
+              // location.reload(); // call after awaits above if necessary
+              return flashcards;
+            }
+          
+            // No version change but we still replaced data
+            flashcards = newCards;
+            showToast('Data refreshed from Google Sheet!', '#27ae60');
         }
+        // If fetch failed, we fall back to whatever was in IndexedDB (flashcards variable)
       }
-    
+      
+      // Ensure we always return an array (could be empty)
       return flashcards;
     }
-
+    
     async function forceRefreshData() {
+      const now = Date.now();
       const freshData = await fetchFromGoogleSheet();
-      if (freshData) {
-        await storeFlashcards(freshData);
-        await setMetadata('lastFetch', Date.now());
-        flashcards = freshData;
-        deck = [...flashcards];
-        currentIndex = 0;
-        updateCard();
-        showToast('Data manually refreshed!', '#27ae60');
+        if (freshData) {
+          const { flashcards: newCards, version: newVersion } = freshData;
+          await storeFlashcards(newCards);
+          await setMetadata('lastFetch', now);
+          await setMetadata('version', newVersion);
+          flashcards = newCards;   // update global
+          deck = [...flashcards];
+          currentIndex = 0;
+          updateCard();
+          showToast('Data manually refreshed!', '#27ae60');
+        } else {
+      // helpful feedback when manual refresh couldn't fetch
+      showToast('Manual refresh failed — offline or fetch error.', '#c0392b');
       }
     }
 
@@ -648,6 +667,7 @@
   </script>
 </body>
 </html>
+
 
 
 
