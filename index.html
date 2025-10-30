@@ -238,11 +238,7 @@
     refreshBtn.className = 'btn-refresh';
     refreshBtn.addEventListener('click', forceRefreshData);
     controls.appendChild(refreshBtn);
-//Helper
-    flashcards.forEach((card, index) => {
-      card.id = index;
-    });
-    
+
     // === INDEXEDDB HELPERS ===
     function openDB() {
       return new Promise((resolve, reject) => {
@@ -654,4 +650,5 @@
   </script>
 </body>
 </html>
+
 
