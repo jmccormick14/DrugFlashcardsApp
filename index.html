@@ -254,18 +254,25 @@
       }
     }
 
-    function parseTSV(tsvText) {
+   function parseTSV(tsvText) {
       const lines = tsvText.split('\n').filter(line => line.trim());
-      let version = '1.0'; // Default
-      const flashcards = [];
-      const headers = lines[0].split('\t').map(h => h.trim());
+      let version = '1.0'; // Default if not found
+      let headerIndex = 0;
     
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split('\t').map(v => v.trim());
-        if (values[0] === 'key' && values[1] === 'version') {
-          version = values[2]; // Extract version if present
-          continue;
+      // Check for metadata rows
+      if (lines[0].startsWith('key\tvalue')) {
+        // Extract version from second row
+        const metadataLine = lines[1].split('\t').map(v => v.trim());
+        if (metadataLine[0] === 'version') {
+          version = metadataLine[1];
         }
+        headerIndex = 2; // Headers now on line 2 (0-indexed)
+      }
+    
+      const headers = lines[headerIndex].split('\t').map(h => h.trim());
+      const flashcards = [];
+      for (let i = headerIndex + 1; i < lines.length; i++) {
+        const values = lines[i].split('\t').map(v => v.trim());
         const card = {};
         headers.forEach((header, idx) => {
           card[header] = values[idx] || '';
@@ -275,7 +282,6 @@
       flashcards.forEach((card, index) => { card.id = index; });
       return { flashcards, version };
     }
-
     async function storeFlashcards(flashcards) {
       await clearStore(STORE_FLASHCARDS);
       const db = await openDB();
@@ -551,4 +557,5 @@
   </script>
 </body>
 </html>
+
 
