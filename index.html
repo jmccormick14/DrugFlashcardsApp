@@ -26,9 +26,8 @@
     .btn-review { background: #e74c3c; color: white; }
     .btn-reset { background: #95a5a6; color: white; }
     .btn-all { background: #2c3e50; color: white; }
-    .btn-focus { background: #9b59b6; color: white; }
-    .btn-refresh { background: #f39c12; color: white; }
-    .btn-work { background: #16a085; color: white; } /* NEW for work mode */
+    .btn-focus { background: #9b59b6; color: white; } /* NEW */
+    .btn-refresh { background: #f39c12; color: white; } /* NEW for refresh */
 
     .card-container { perspective: 1000px; flex: 1; margin-bottom: 15px; }
     .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s ease-in-out; cursor: pointer; border-radius: 12px; box-shadow: 0 6px 15px rgba(0,0,0,0.1); }
@@ -66,32 +65,6 @@
     .drug-item:hover { background: #3498db; color: white; }
     #closeFocus { margin-top: 15px; background: #95a5a6; width: 100%; }
 
-    /* NEW: Work Mode Overlay */
-    #workOverlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
-      display: none; justify-content: center; align-items: center; z-index: 1000;
-    }
-    #workPanel {
-      background: white; padding: 20px; border-radius: 12px; max-width: 90%; max-height: 80%; overflow-y: auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    }
-    #workPanel h3 { margin-bottom: 15px; text-align: center; color: #2c3e50; }
-    #drugSearch { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #bdc3c7; border-radius: 4px; }
-    #drugDropdown { width: 100%; padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px; }
-    #closeWork { margin-top: 15px; background: #95a5a6; width: 100%; }
-
-    /* NEW: Summary Modal */
-    #summaryModal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
-      display: none; justify-content: center; align-items: center; z-index: 1100;
-    }
-    #summaryContent {
-      background: white; padding: 20px; border-radius: 12px; max-width: 90%; max-height: 80%; overflow-y: auto;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center;
-    }
-    #summaryContent .answer { color: #1a3d1f; }
-    #closeSummary { margin-top: 15px; background: #95a5a6; width: 100%; }
-
     @media (max-width: 480px) {
       .question { font-size: 1.1em; }
       .answer { font-size: 1em; }
@@ -118,7 +91,6 @@
       <button id="reviewBtn" class="btn-review">Review Missed</button>
       <button id="focusBtn" class="btn-focus">Focus Mode</button>
       <button id="resetBtn" class="btn-reset">Reset Progress</button>
-      <button id="workBtn" class="btn-work">Work Mode</button> <!-- NEW -->
       <button id="allCardsBtn" class="btn-all" style="display:none;">Back to All Cards</button>
     </div>
 
@@ -150,25 +122,6 @@
       <h3>Select a Drug to Focus On</h3>
       <div class="drug-list" id="drugList"></div>
       <button id="closeFocus" class="nav-btn">Close</button>
-    </div>
-  </div>
-
-  <!-- NEW: Work Mode Overlay -->
-  <div id="workOverlay">
-    <div id="workPanel">
-      <h3>Quick Drug Summary</h3>
-      <input type="text" id="drugSearch" placeholder="Search drug...">
-      <select id="drugDropdown" size="10"></select>
-      <button id="closeWork" class="nav-btn">Close</button>
-    </div>
-  </div>
-
-  <!-- NEW: Summary Modal -->
-  <div id="summaryModal">
-    <div id="summaryContent">
-      <h3 id="summaryTitle"></h3>
-      <div id="summaryAnswer" class="answer"></div>
-      <button id="closeSummary" class="nav-btn">Close</button>
     </div>
   </div>
 
@@ -219,17 +172,6 @@
     const focusOverlay = document.getElementById('focusOverlay');
     const drugList = document.getElementById('drugList');
     const closeFocus = document.getElementById('closeFocus');
-
-    // NEW: Work Mode Elements
-    const workBtn = document.getElementById('workBtn');
-    const workOverlay = document.getElementById('workOverlay');
-    const drugSearch = document.getElementById('drugSearch');
-    const drugDropdown = document.getElementById('drugDropdown');
-    const closeWork = document.getElementById('closeWork');
-    const summaryModal = document.getElementById('summaryModal');
-    const summaryTitle = document.getElementById('summaryTitle');
-    const summaryAnswer = document.getElementById('summaryAnswer');
-    const closeSummary = document.getElementById('closeSummary');
 
     // Add Refresh Button
     const controls = document.querySelector('.controls');
@@ -313,22 +255,9 @@
 
     function parseTSV(tsvText) {
       const lines = tsvText.split('\n').filter(line => line.trim());
-      let version = '1.0'; // Default if not found
-      let headerIndex = 0;
-
-      // Check for metadata rows
-      if (lines[0].startsWith('key\tvalue')) {
-        // Extract version from second row
-        const metadataLine = lines[1].split('\t').map(v => v.trim());
-        if (metadataLine[0] === 'version') {
-          version = metadataLine[1];
-        }
-        headerIndex = 2; // Headers now on line 2 (0-indexed)
-      }
-
-      const headers = lines[headerIndex].split('\t').map(h => h.trim());
+      const headers = lines[0].split('\t').map(h => h.trim());
       const flashcards = [];
-      for (let i = headerIndex + 1; i < lines.length; i++) {
+      for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split('\t').map(v => v.trim());
         const card = {};
         headers.forEach((header, idx) => {
@@ -337,7 +266,7 @@
         flashcards.push(card);
       }
       flashcards.forEach((card, index) => { card.id = index; });
-      return { flashcards, version };
+      return flashcards;
     }
 
     async function storeFlashcards(flashcards) {
@@ -374,7 +303,8 @@
       if (freshData) {
         await storeFlashcards(freshData);
         await setMetadata('lastFetch', Date.now());
-        deck = [...freshData];
+        flashcards = freshData;
+        deck = [...flashcards];
         currentIndex = 0;
         updateCard();
         showToast('Data manually refreshed!', '#27ae60');
@@ -394,7 +324,7 @@
 
     function updateStats() {
       const total = flashcards.length;
-      const mastered = masteredSet.size;
+      const mastered = masteredSet.size;  // Only count explicitly marked correct
       const percent = Math.round((mastered / total) * 100);
       statsEl.textContent = `Mastered: ${mastered} / ${total} (${percent}%)`;
     }
@@ -402,7 +332,7 @@
     function updateCard() {
       const c = deck[currentIndex];
       questionEl.textContent = c.question;
-      answerEl.innerHTML = c.answer;
+      answerEl.innerHTML = c.answer;  
       drugBackEl.textContent = c.drug;
       progressEl.textContent = `${currentIndex + 1} of ${deck.length}`;
       modeText.textContent = isFocusMode ? `Focus: ${focusDrug}` : (isReviewMode ? `Review Missed (${deck.length})` : 'All Cards');
@@ -431,7 +361,6 @@
         }
       }
     });
-    
     nextBtn.addEventListener('click', () => {
       if (currentIndex < deck.length - 1) {
         if (card.classList.contains('flipped')) {
@@ -442,7 +371,6 @@
         }
       }
     });
-    
     card.addEventListener('click', () => card.classList.toggle('flipped'));
 
     // MARK CORRECT / INCORRECT
@@ -454,18 +382,19 @@
       saveProgress();
       showToast("Marked Correct", "#27ae60");
       updateStats();  // Refresh stats immediately
-          
+      
+     
     });
 
     incorrectBtn.addEventListener('click', () => {
-          setTimeout(() => nextBtn.click(), 600);
-          const cardId = deck[currentIndex].id;
-          missedSet.add(cardId);    // Mark as missed
-          masteredSet.delete(cardId); // Remove from mastered if present
-          saveProgress();
-          showToast("Marked Wrong", "#c0392b");
-          updateStats();  // Refresh stats immediately
-          
+      setTimeout(() => nextBtn.click(), 600);
+      const cardId = deck[currentIndex].id;
+      missedSet.add(cardId);    // Mark as missed
+      masteredSet.delete(cardId); // Remove from mastered if present
+      saveProgress();
+      showToast("Marked Wrong", "#c0392b");
+      updateStats();  // Refresh stats immediately
+      
     });
 
     // SHUFFLE
@@ -488,7 +417,7 @@
         return;
       }
       mainDeckIndex = currentIndex;
-      deck = [...missedSet].map(i => flashcards.find(c => c.id === i));
+      deck = [...missedSet].map(i => flashcards[i]);
       currentIndex = 0;
       isReviewMode = true;
       isFocusMode = false;
@@ -501,12 +430,12 @@
       const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
 
       drugList.innerHTML = '';
-      // Summaries Only Option
+      // === Summaries Only Option ===
       const summariesItem = document.createElement('div');
       summariesItem.className = 'drug-item';
       summariesItem.textContent = 'Summaries Only';
       summariesItem.style.fontWeight = 'bold';
-      summariesItem.style.background = '#27ae60';
+      summariesItem.style.background = '#27ae60';  // Green to distinguish
       summariesItem.onclick = () => {
         focusDrug = 'Summaries';
         deck = flashcards.filter(c => !c.question.startsWith('What'));
@@ -517,8 +446,8 @@
         updateCard();
       };
       drugList.appendChild(summariesItem);
-
-      // "None" Option
+    
+      // === "None" Option ===
       const noneItem = document.createElement('div');
       noneItem.className = 'drug-item';
       noneItem.textContent = 'None (All Cards)';
@@ -534,7 +463,7 @@
       };
       drugList.appendChild(noneItem);
 
-      // Drug List
+      // === Drug List ===
       drugs.forEach(drug => {
         const item = document.createElement('div');
         item.className = 'drug-item';
@@ -572,13 +501,13 @@
       if (confirm('Reset all progress?')) {
         missedSet.clear();
         masteredSet.clear();
+        updateStats();
         saveProgress();
         deck = [...flashcards];
         currentIndex = 0;
         isReviewMode = false;
         isFocusMode = false;
         mainDeckIndex = 0;
-        updateCard();
       }
     });
 
@@ -594,50 +523,6 @@
       setTimeout(() => toast.remove(), 2000);
     }
 
-    // NEW: Work Mode Logic
-    workBtn.addEventListener('click', () => {
-      const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
-      drugDropdown.innerHTML = '';
-      drugs.forEach(drug => {
-        const option = document.createElement('option');
-        option.value = drug;
-        option.textContent = drug;
-        drugDropdown.appendChild(option);
-      });
-      drugSearch.value = '';
-      workOverlay.style.display = 'flex';
-    });
-
-    drugSearch.addEventListener('input', () => {
-      const filter = drugSearch.value.toLowerCase();
-      Array.from(drugDropdown.options).forEach(option => {
-        option.style.display = option.text.toLowerCase().includes(filter) ? 'block' : 'none';
-      });
-    });
-
-    drugDropdown.addEventListener('change', () => {
-      const selectedDrug = drugDropdown.value;
-      if (selectedDrug) {
-        const summaryCard = flashcards.find(c => c.question.toLowerCase().includes(selectedDrug.toLowerCase()) && !c.question.startsWith('What'));
-        if (summaryCard) {
-          summaryTitle.textContent = summaryCard.question;
-          summaryAnswer.innerHTML = summaryCard.answer;
-          workOverlay.style.display = 'none';
-          summaryModal.style.display = 'flex';
-        } else {
-          showToast('No summary found for ' + selectedDrug, '#c0392b');
-        }
-      }
-    });
-
-    closeWork.addEventListener('click', () => {
-      workOverlay.style.display = 'none';
-    });
-
-    closeSummary.addEventListener('click', () => {
-      summaryModal.style.display = 'none';
-    });
-
     // INIT
     let flashcards = [];
     loadProgress();
@@ -650,5 +535,3 @@
   </script>
 </body>
 </html>
-
-
