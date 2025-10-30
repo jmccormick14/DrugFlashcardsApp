@@ -245,7 +245,8 @@
         const response = await fetch(GOOGLE_SHEET_TSV_URL);
         if (!response.ok) throw new Error('Fetch failed');
         const tsvText = await response.text();
-        return parseTSV(tsvText);
+        const { flashcards, version } = parseTSV(tsvText); // Updated parse to extract version
+        return { flashcards, version };
       } catch (error) {
         console.error('Error fetching Google Sheet:', error);
         showToast('Failed to fetch new data. Using cached version.', '#c0392b');
@@ -255,10 +256,16 @@
 
     function parseTSV(tsvText) {
       const lines = tsvText.split('\n').filter(line => line.trim());
-      const headers = lines[0].split('\t').map(h => h.trim());
+      let version = '1.0'; // Default
       const flashcards = [];
+      const headers = lines[0].split('\t').map(h => h.trim());
+    
       for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split('\t').map(v => v.trim());
+        if (values[0] === 'key' && values[1] === 'version') {
+          version = values[2]; // Extract version if present
+          continue;
+        }
         const card = {};
         headers.forEach((header, idx) => {
           card[header] = values[idx] || '';
@@ -266,7 +273,7 @@
         flashcards.push(card);
       }
       flashcards.forEach((card, index) => { card.id = index; });
-      return flashcards;
+      return { flashcards, version };
     }
 
     async function storeFlashcards(flashcards) {
@@ -282,19 +289,28 @@
     // === REFRESH LOGIC ===
     async function loadFlashcards() {
       const lastFetch = await getMetadata('lastFetch');
+      const storedVersion = await getMetadata('version') || '0.0';
       const now = Date.now();
       let flashcards = await getAllFromStore(STORE_FLASHCARDS);
-
+    
       if (!flashcards.length || !lastFetch || (now - lastFetch > REFRESH_INTERVAL_MS)) {
         const freshData = await fetchFromGoogleSheet();
         if (freshData) {
-          flashcards = freshData;
+          const { flashcards: newCards, version: newVersion } = freshData;
+          if (newVersion !== storedVersion) {
+            // Force clear and refresh if version changed
+            await clearStore(STORE_FLASHCARDS);
+            showToast('New version detected! Reloading data...', '#f39c12');
+            location.reload(); // Force full app reload to apply changes
+          }
+          flashcards = newCards;
           await storeFlashcards(flashcards);
           await setMetadata('lastFetch', now);
+          await setMetadata('version', newVersion);
           showToast('Data refreshed from Google Sheet!', '#27ae60');
         }
       }
-
+    
       return flashcards;
     }
 
@@ -535,3 +551,4 @@
   </script>
 </body>
 </html>
+
