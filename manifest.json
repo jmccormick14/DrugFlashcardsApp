@@ -1,7 +1,8 @@
+
 {
   "name": "Drug Flashcards",
-  "short_name": "IV Drugs",
-  "description": "Interactive flashcards for 225 drug questions",
+  "short_name": "IV Infusion",
+  "description": "Interactive flashcards for IV infusion",
   "start_url": "./",
   "scope": "/",
   "display": "standalone",
