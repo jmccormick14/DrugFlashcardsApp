@@ -65,6 +65,34 @@
     .drug-item:hover { background: #3498db; color: white; }
     #closeFocus { margin-top: 15px; background: #95a5a6; width: 100%; }
 
+    /*Work Mode Overlay*/
+    #workOverlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+      display: none; justify-content: center; align-items: center; z-index: 1000;
+    }
+    #workPanel {
+      background: white; padding: 20px; border-radius: 12px; max-width: 90%; max-height: 80%; overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+    #workPanel h3 { margin-bottom: 15px; text-align: center; color: #2c3e50; }
+    #drugSearch { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #bdc3c7; border-radius: 4px; }
+    #drugDropdown { width: 100%; padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px; }
+    #closeWork { margin-top: 15px; background: #95a5a6; width: 100%; }
+
+    /* NEW: Summary Modal */
+    #summaryModal {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7);
+      display: none; justify-content: center; align-items: center; z-index: 1100;
+    }
+    #summaryContent {
+      background: white; padding: 20px; border-radius: 12px; max-width: 90%; max-height: 80%; overflow-y: auto;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3); text-align: center;
+    }
+    #summaryContent .answer { color: #1a3d1f; }
+    #closeSummary { margin-top: 15px; background: #95a5a6; width: 100%; }
+
+
+    
     @media (max-width: 480px) {
       .question { font-size: 1.1em; }
       .answer { font-size: 1em; }
@@ -91,6 +119,7 @@
       <button id="reviewBtn" class="btn-review">Review Missed</button>
       <button id="focusBtn" class="btn-focus">Focus Mode</button>
       <button id="resetBtn" class="btn-reset">Reset Progress</button>
+      <button id="workBtn" class="btn-work">Work Mode</button>
       <button id="allCardsBtn" class="btn-all" style="display:none;">Back to All Cards</button>
     </div>
 
@@ -125,6 +154,24 @@
     </div>
   </div>
 
+  <!-- Work Mode Overlay -->
+  <div id="workOverlay">
+    <div id="workPanel">
+      <h3>Quick Drug Summary</h3>
+      <input type="text" id="drugSearch" placeholder="Search drug...">
+      <select id="drugDropdown" size="10"></select>
+      <button id="closeWork" class="nav-btn">Close</button>
+    </div>
+  </div>
+
+  <!--Summary Modal -->
+  <div id="summaryModal">
+    <div id="summaryContent">
+      <h3 id="summaryTitle"></h3>
+      <div id="summaryAnswer" class="answer"></div>
+      <button id="closeSummary" class="nav-btn">Close</button>
+    </div>
+  </div>
   <script>
     // Service Worker (PWA offline)
     if ('serviceWorker' in navigator) {
@@ -172,7 +219,17 @@
     const focusOverlay = document.getElementById('focusOverlay');
     const drugList = document.getElementById('drugList');
     const closeFocus = document.getElementById('closeFocus');
-
+    // Work Mode Elements
+    const workBtn = document.getElementById('workBtn');
+    const workOverlay = document.getElementById('workOverlay');
+    const drugSearch = document.getElementById('drugSearch');
+    const drugDropdown = document.getElementById('drugDropdown');
+    const closeWork = document.getElementById('closeWork');
+    const summaryModal = document.getElementById('summaryModal');
+    const summaryTitle = document.getElementById('summaryTitle');
+    const summaryAnswer = document.getElementById('summaryAnswer');
+    const closeSummary = document.getElementById('closeSummary');
+    
     // Add Refresh Button
     const controls = document.querySelector('.controls');
     const refreshBtn = document.createElement('button');
@@ -533,6 +590,50 @@
       }
     });
 
+    // Work Mode Logic
+    workBtn.addEventListener('click', () => {
+      const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
+      drugDropdown.innerHTML = '';
+      drugs.forEach(drug => {
+        const option = document.createElement('option');
+        option.value = drug;
+        option.textContent = drug;
+        drugDropdown.appendChild(option);
+      });
+      drugSearch.value = '';
+      workOverlay.style.display = 'flex';
+    });
+
+    drugSearch.addEventListener('input', () => {
+      const filter = drugSearch.value.toLowerCase();
+      Array.from(drugDropdown.options).forEach(option => {
+        option.style.display = option.text.toLowerCase().includes(filter) ? 'block' : 'none';
+      });
+    });
+
+    drugDropdown.addEventListener('change', () => {
+      const selectedDrug = drugDropdown.value;
+      if (selectedDrug) {
+        const summaryCard = flashcards.find(c => c.question.toLowerCase().includes(selectedDrug.toLowerCase()) && !c.question.startsWith('What'));
+        if (summaryCard) {
+          summaryTitle.textContent = summaryCard.question;
+          summaryAnswer.innerHTML = summaryCard.answer;
+          workOverlay.style.display = 'none';
+          summaryModal.style.display = 'flex';
+        } else {
+          showToast('No summary found for ' + selectedDrug, '#c0392b');
+        }
+      }
+    });
+
+    closeWork.addEventListener('click', () => {
+      workOverlay.style.display = 'none';
+    });
+
+    closeSummary.addEventListener('click', () => {
+      summaryModal.style.display = 'none';
+    });
+    
     // TOAST
     function showToast(message, bgColor) {
       const existing = document.getElementById('toast');
@@ -557,5 +658,6 @@
   </script>
 </body>
 </html>
+
 
 
