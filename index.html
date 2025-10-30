@@ -75,8 +75,7 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
     #workPanel h3 { margin-bottom: 15px; text-align: center; color: #2c3e50; }
-    #drugSearch { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #bdc3c7; border-radius: 4px; }
-    #drugDropdown { width: 100%; padding: 8px; border: 1px solid #bdc3c7; border-radius: 4px; }
+    
     #closeWork { margin-top: 15px; background: #95a5a6; width: 100%; }
 
     /* NEW: Summary Modal */
@@ -157,9 +156,8 @@
   <!-- Work Mode Overlay -->
   <div id="workOverlay">
     <div id="workPanel">
-      <h3>Quick Drug Summary</h3>
-      <input type="text" id="drugSearch" placeholder="Search drug...">
-      <select id="drugDropdown" size="10"></select>
+      <h3>Select a Drug Summary</h3>
+      <div class="drug-list" id="workDrugList"></div>
       <button id="closeWork" class="nav-btn">Close</button>
     </div>
   </div>
@@ -222,8 +220,6 @@
     // Work Mode Elements
     const workBtn = document.getElementById('workBtn');
     const workOverlay = document.getElementById('workOverlay');
-    const drugSearch = document.getElementById('drugSearch');
-    const drugDropdown = document.getElementById('drugDropdown');
     const closeWork = document.getElementById('closeWork');
     const summaryModal = document.getElementById('summaryModal');
     const summaryTitle = document.getElementById('summaryTitle');
@@ -593,45 +589,30 @@
     // Work Mode Logic
     workBtn.addEventListener('click', () => {
       const drugs = [...new Set(flashcards.map(c => c.drug))].sort();
-      drugDropdown.innerHTML = '';
+      const workDrugList = document.getElementById('workDrugList');
+      workDrugList.innerHTML = '';
+    
       drugs.forEach(drug => {
-        const option = document.createElement('option');
-        option.value = drug;
-        option.textContent = drug;
-        drugDropdown.appendChild(option);
+        const item = document.createElement('div');
+        item.className = 'drug-item';
+        item.textContent = drug;
+        item.onclick = () => {
+          const summaryCard = flashcards.find(c => 
+            c.drug === drug && !c.question.startsWith('What')
+          );
+          if (summaryCard) {
+            summaryTitle.textContent = summaryCard.question;
+            summaryAnswer.innerHTML = summaryCard.answer;
+            workOverlay.style.display = 'none';
+            summaryModal.style.display = 'flex';
+          } else {
+            showToast(`No summary found for ${drug}`, '#c0392b');
+          }
+        };
+        workDrugList.appendChild(item);
       });
-      drugSearch.value = '';
+    
       workOverlay.style.display = 'flex';
-    });
-
-    drugSearch.addEventListener('input', () => {
-      const filter = drugSearch.value.toLowerCase();
-      Array.from(drugDropdown.options).forEach(option => {
-        option.style.display = option.text.toLowerCase().includes(filter) ? 'block' : 'none';
-      });
-    });
-
-    drugDropdown.addEventListener('change', () => {
-      const selectedDrug = drugDropdown.value;
-      if (selectedDrug) {
-        const summaryCard = flashcards.find(c => c.question.toLowerCase().includes(selectedDrug.toLowerCase()) && !c.question.startsWith('What'));
-        if (summaryCard) {
-          summaryTitle.textContent = summaryCard.question;
-          summaryAnswer.innerHTML = summaryCard.answer;
-          workOverlay.style.display = 'none';
-          summaryModal.style.display = 'flex';
-        } else {
-          showToast('No summary found for ' + selectedDrug, '#c0392b');
-        }
-      }
-    });
-
-    closeWork.addEventListener('click', () => {
-      workOverlay.style.display = 'none';
-    });
-
-    closeSummary.addEventListener('click', () => {
-      summaryModal.style.display = 'none';
     });
     
     // TOAST
@@ -658,6 +639,7 @@
   </script>
 </body>
 </html>
+
 
 
 
