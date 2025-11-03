@@ -532,7 +532,7 @@
       summariesItem.style.background = '#27ae60';  // Green to distinguish
       summariesItem.onclick = () => {
         focusDrug = 'Summaries';
-        deck = flashcards.filter(c => !c.question.startsWith('What'));
+        deck = flashcards.filter(c => c.type === 'Summary');
         currentIndex = 0;
         isFocusMode = true;
         isReviewMode = false;
@@ -617,7 +617,7 @@
         item.textContent = drug;
         item.onclick = () => {
           const summaryCard = flashcards.find(c => 
-            c.drug === drug && !c.question.startsWith('What')
+            c.drug === drug && c.type === 'Summary'
           );
           if (summaryCard) {
             summaryTitle.textContent = summaryCard.question;
@@ -667,6 +667,7 @@
   </script>
 </body>
 </html>
+
 
 
 
